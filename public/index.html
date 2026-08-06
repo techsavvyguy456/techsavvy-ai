@@ -222,26 +222,72 @@
     cursor: not-allowed;
   }
 
+  /* ---------- Hero (shown before first message) ---------- */
+  #hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 12px;
+  }
+
+  #hero h1 {
+    margin: 0;
+    font-size: 2.4rem;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  #hero .powered {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    margin: 0;
+  }
+
+  #hero .ask-anything {
+    margin-top: 8px;
+    font-size: 1.1rem;
+    color: var(--text);
+    opacity: 0.75;
+  }
+
+  #hero .glow-ring {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%);
+    border: 2px solid rgba(0,212,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    margin-bottom: 8px;
+    box-shadow: 0 0 24px rgba(0,212,255,0.2);
+  }
+
   @media (max-width: 600px) {
     .message { max-width: 88%; }
-    header h1 { font-size: 1.3rem; }
+    #hero h1 { font-size: 1.7rem; }
     #input-bar { padding: 10px 12px; }
   }
 </style>
 </head>
 <body>
 
-  <header>
-    <h1>⚡ TECHSAVVY AI</h1>
-    <p>Powered by Mistral</p>
-  </header>
-
-  <div id="chat-container">
-    <div class="message bot">
-      <span class="label">TECHSAVVY AI</span>
-      Yo! TECHSAVVY AI here, booted up and ready to roll ⚡ Ask me about custom ROMs, sideloading apps, reviving some dusty legacy hardware, or reliving the golden days of classic Minecraft PE. What are we hacking on today?
-    </div>
+  <div id="hero">
+    <div class="glow-ring">⚡</div>
+    <h1>TECHSAVVY AI</h1>
+    <p class="powered">Powered by Mistral AI</p>
+    <p class="ask-anything">Ask me anything — ROMs, mods, retro tech, or just vibe 🤙</p>
   </div>
+
+  <div id="chat-container" style="display:none;"></div>
 
   <div id="input-bar">
     <div id="input-inner">
@@ -258,6 +304,14 @@
     const chatContainer = document.getElementById('chat-container');
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
+    const hero = document.getElementById('hero');
+
+    function showChat() {
+      if (hero.style.display !== 'none') {
+        hero.style.display = 'none';
+        chatContainer.style.display = 'flex';
+      }
+    }
 
     // Full conversation history sent to the backend (role/content pairs)
     let conversationHistory = [];
@@ -315,7 +369,8 @@
       const text = messageInput.value.trim();
       if (!text) return;
 
-      // Show user message
+      // Show user message (hide hero first)
+      showChat();
       appendMessage('user', text);
       conversationHistory.push({ role: 'user', content: text });
 
