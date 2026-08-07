@@ -17,57 +17,205 @@
     --user-bubble: #2563eb;
     --bot-bubble: #23283a;
     --danger: #ff5c7a;
+    --sidebar-w: 260px;
+    --discord: #5865f2;
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
     height: 100%;
-    margin: 0;
-    padding: 0;
   }
 
   body {
-    background: radial-gradient(circle at top, #171a26 0%, #0b0d13 70%);
+    background: var(--bg);
     color: var(--text);
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
-    flex-direction: column;
     height: 100vh;
     overflow: hidden;
   }
 
-  /* ---------- Header ---------- */
-  header {
-    padding: 18px 24px;
-    background: linear-gradient(90deg, rgba(0,212,255,0.08), rgba(124,92,255,0.08));
+  /* ===================== SIDEBAR ===================== */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 6px;
+    overflow: hidden;
+    transition: transform 0.25s ease;
+    z-index: 100;
+  }
+
+  #new-chat-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--discord);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.15s;
+    margin-bottom: 6px;
+  }
+  #new-chat-btn:hover { opacity: 0.88; }
+  #new-chat-btn svg { flex-shrink: 0; }
+
+  .sidebar-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    padding: 10px 6px 4px;
+    font-weight: 600;
+  }
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text);
+    transition: background 0.15s;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+  }
+  .suggestion-item:hover { background: var(--panel-2); }
+  .suggestion-item .icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* Spacer pushes footer to bottom */
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .sidebar-link:hover {
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .sidebar-link .icon { font-size: 1.1rem; }
+
+  /* ===================== MAIN ===================== */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #171a26 0%, #0b0d13 70%);
+  }
+
+  /* Mobile top bar */
+  #topbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
-    text-align: center;
+    background: var(--panel);
     flex-shrink: 0;
   }
 
-  header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    letter-spacing: 0.5px;
+  #menu-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 4px;
+  }
+
+  #topbar-title {
+    font-size: 1rem;
+    font-weight: 700;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  header p {
-    margin: 4px 0 0;
-    font-size: 0.85rem;
+  /* ---- Hero ---- */
+  #hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 12px;
+  }
+
+  .glow-ring {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%);
+    border: 2px solid rgba(0,212,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    margin-bottom: 8px;
+    box-shadow: 0 0 24px rgba(0,212,255,0.2);
+  }
+
+  #hero h1 {
+    font-size: 2.4rem;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  #hero .powered {
+    font-size: 0.95rem;
     color: var(--text-dim);
   }
 
-  /* ---------- Chat container ---------- */
+  #hero .ask-anything {
+    margin-top: 8px;
+    font-size: 1.1rem;
+    color: var(--text);
+    opacity: 0.75;
+  }
+
+  /* ---- Chat ---- */
   #chat-container {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 14px;
     max-width: 860px;
@@ -75,9 +223,7 @@
     margin: 0 auto;
   }
 
-  #chat-container::-webkit-scrollbar {
-    width: 8px;
-  }
+  #chat-container::-webkit-scrollbar { width: 8px; }
   #chat-container::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 8px;
@@ -115,10 +261,7 @@
     border-bottom-left-radius: 4px;
   }
 
-  .message.bot.error {
-    border-color: var(--danger);
-    color: var(--danger);
-  }
+  .message.bot.error { border-color: var(--danger); color: var(--danger); }
 
   .message .label {
     display: block;
@@ -141,8 +284,7 @@
   }
 
   .typing-indicator span {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--text-dim);
     animation: blink 1.2s infinite ease-in-out;
@@ -155,7 +297,7 @@
     40% { opacity: 1; }
   }
 
-  /* ---------- Input bar ---------- */
+  /* ---- Input bar ---- */
   #input-bar {
     flex-shrink: 0;
     border-top: 1px solid var(--border);
@@ -195,9 +337,7 @@
     line-height: 1.4;
   }
 
-  #message-input::placeholder {
-    color: var(--text-dim);
-  }
+  #message-input::placeholder { color: var(--text-dim); }
 
   #send-btn {
     flex-shrink: 0;
@@ -212,66 +352,27 @@
     border-radius: 10px;
     transition: transform 0.15s ease, opacity 0.15s ease;
   }
+  #send-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  #send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  #send-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
+  /* ===================== MOBILE ===================== */
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
   }
 
-  #send-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* ---------- Hero (shown before first message) ---------- */
-  #hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    text-align: center;
-    padding: 40px 20px;
-    gap: 12px;
-  }
-
-  #hero h1 {
-    margin: 0;
-    font-size: 2.4rem;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  #hero .powered {
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    margin: 0;
-  }
-
-  #hero .ask-anything {
-    margin-top: 8px;
-    font-size: 1.1rem;
-    color: var(--text);
-    opacity: 0.75;
-  }
-
-  #hero .glow-ring {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%);
-    border: 2px solid rgba(0,212,255,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.6rem;
-    margin-bottom: 8px;
-    box-shadow: 0 0 24px rgba(0,212,255,0.2);
-  }
-
-  @media (max-width: 600px) {
+  @media (max-width: 680px) {
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      transform: translateX(-100%);
+    }
+    #sidebar.open { transform: translateX(0); }
+    #sidebar-overlay.open { display: block; }
+    #topbar { display: flex; }
     .message { max-width: 88%; }
     #hero h1 { font-size: 1.7rem; }
     #input-bar { padding: 10px 12px; }
@@ -280,6 +381,53 @@
 </head>
 <body>
 
+<!-- ===== SIDEBAR ===== -->
+<nav id="sidebar">
+  <button id="new-chat-btn" onclick="newChat()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    New Chat
+  </button>
+
+  <div class="sidebar-label">Suggestions</div>
+
+  <button class="suggestion-item" onclick="useSuggestion('What custom ROM should I flash on my Android phone?')">
+    <span class="icon">🛠️</span> Custom ROM advice
+  </button>
+  <button class="suggestion-item" onclick="useSuggestion('How do I sideload an APK on Android?')">
+    <span class="icon">📦</span> Sideload an APK
+  </button>
+  <button class="suggestion-item" onclick="useSuggestion('What are the best retro Android phones to collect?')">
+    <span class="icon">📱</span> Retro phone collecting
+  </button>
+  <button class="suggestion-item" onclick="useSuggestion('Tell me about classic Minecraft Pocket Edition')">
+    <span class="icon">🎮</span> Classic Minecraft PE
+  </button>
+  <button class="suggestion-item" onclick="useSuggestion('How do I revive an old bricked Android device?')">
+    <span class="icon">⚡</span> Revive a bricked device
+  </button>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-footer">
+    <a class="sidebar-link" href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener">
+      <span class="icon">💬</span> Discord Server
+    </a>
+  </div>
+</nav>
+
+<!-- Mobile overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ===== MAIN ===== -->
+<div id="main">
+
+  <!-- Mobile top bar -->
+  <div id="topbar">
+    <button id="menu-btn" onclick="openSidebar()">☰</button>
+    <span id="topbar-title">⚡ TECHSAVVY AI</span>
+  </div>
+
+  <!-- Hero screen -->
   <div id="hero">
     <div class="glow-ring">⚡</div>
     <h1>TECHSAVVY AI</h1>
@@ -287,131 +435,153 @@
     <p class="ask-anything">Ask me anything — ROMs, mods, retro tech, or just vibe 🤙</p>
   </div>
 
-  <div id="chat-container" style="display:none;"></div>
+  <!-- Chat messages -->
+  <div id="chat-container"></div>
 
+  <!-- Input -->
   <div id="input-bar">
     <div id="input-inner">
-      <textarea
-        id="message-input"
-        placeholder="Ask TECHSAVVY AI something..."
-        rows="1"
-      ></textarea>
+      <textarea id="message-input" placeholder="Ask TECHSAVVY AI something..." rows="1"></textarea>
       <button id="send-btn">Send</button>
     </div>
   </div>
 
-  <script>
-    const chatContainer = document.getElementById('chat-container');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
-    const hero = document.getElementById('hero');
+</div>
 
-    function showChat() {
-      if (hero.style.display !== 'none') {
-        hero.style.display = 'none';
-        chatContainer.style.display = 'flex';
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const messageInput  = document.getElementById('message-input');
+  const sendBtn       = document.getElementById('send-btn');
+  const hero          = document.getElementById('hero');
+  const sidebar       = document.getElementById('sidebar');
+  const overlay       = document.getElementById('sidebar-overlay');
+
+  let conversationHistory = [];
+
+  // ---- Sidebar ----
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  // ---- New chat ----
+  function newChat() {
+    conversationHistory = [];
+    chatContainer.innerHTML = '';
+    chatContainer.style.display = 'none';
+    hero.style.display = 'flex';
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    closeSidebar();
+    messageInput.focus();
+  }
+
+  // ---- Suggestions ----
+  function useSuggestion(text) {
+    messageInput.value = text;
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
+    closeSidebar();
+    messageInput.focus();
+    sendMessage();
+  }
+
+  // ---- Show chat area ----
+  function showChat() {
+    if (hero.style.display !== 'none') {
+      hero.style.display = 'none';
+      chatContainer.style.display = 'flex';
+    }
+  }
+
+  // ---- Auto-resize textarea ----
+  messageInput.addEventListener('input', () => {
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
+  });
+
+  // ---- Enter to send ----
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  function appendMessage(role, text, isError = false) {
+    const div = document.createElement('div');
+    div.className = `message ${role === 'user' ? 'user' : 'bot'}${isError ? ' error' : ''}`;
+
+    if (role !== 'user') {
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = 'TECHSAVVY AI';
+      div.appendChild(label);
+      div.appendChild(document.createTextNode(text));
+    } else {
+      div.textContent = text;
+    }
+
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return div;
+  }
+
+  function showTypingIndicator() {
+    const el = document.createElement('div');
+    el.className = 'typing-indicator';
+    el.id = 'typing-indicator';
+    el.innerHTML = '<span></span><span></span><span></span>';
+    chatContainer.appendChild(el);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
+
+    showChat();
+    appendMessage('user', text);
+    conversationHistory.push({ role: 'user', content: text });
+
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    showTypingIndicator();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversationHistory })
+      });
+
+      const data = await res.json();
+      removeTypingIndicator();
+
+      if (!res.ok) {
+        appendMessage('bot', data.error || 'Something went wrong.', true);
+        return;
       }
+
+      appendMessage('bot', data.reply);
+      conversationHistory.push({ role: 'assistant', content: data.reply });
+
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessage('bot', "oh noooooo! mah circuit decided to short out processing thet request. check ur api key or try again in a second! :(", true);
+    } finally {
+      sendBtn.disabled = false;
+      messageInput.focus();
     }
-
-    // Full conversation history sent to the backend (role/content pairs)
-    let conversationHistory = [];
-
-    // ---- Auto-resize textarea ----
-    messageInput.addEventListener('input', () => {
-      messageInput.style.height = 'auto';
-      messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
-    });
-
-    // ---- Enter to send, Shift+Enter for newline ----
-    messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    sendBtn.addEventListener('click', sendMessage);
-
-    function appendMessage(role, text, isError = false) {
-      const div = document.createElement('div');
-      div.className = `message ${role === 'user' ? 'user' : 'bot'}${isError ? ' error' : ''}`;
-
-      if (role !== 'user') {
-        const label = document.createElement('span');
-        label.className = 'label';
-        label.textContent = 'TECHSAVVY AI';
-        div.appendChild(label);
-        div.appendChild(document.createTextNode(text));
-      } else {
-        div.textContent = text;
-      }
-
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
-
-    function showTypingIndicator() {
-      const el = document.createElement('div');
-      el.className = 'typing-indicator';
-      el.id = 'typing-indicator';
-      el.innerHTML = '<span></span><span></span><span></span>';
-      chatContainer.appendChild(el);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function removeTypingIndicator() {
-      const el = document.getElementById('typing-indicator');
-      if (el) el.remove();
-    }
-
-    async function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-
-      // Show user message (hide hero first)
-      showChat();
-      appendMessage('user', text);
-      conversationHistory.push({ role: 'user', content: text });
-
-      // Reset input
-      messageInput.value = '';
-      messageInput.style.height = 'auto';
-      sendBtn.disabled = true;
-
-      showTypingIndicator();
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: conversationHistory })
-        });
-
-        const data = await res.json();
-        removeTypingIndicator();
-
-        if (!res.ok) {
-          appendMessage('bot', data.error || 'Something went wrong.', true);
-          return;
-        }
-
-        appendMessage('bot', data.reply);
-        conversationHistory.push({ role: 'assistant', content: data.reply });
-
-      } catch (err) {
-        removeTypingIndicator();
-        appendMessage(
-          'bot',
-          "oh noooooo! mah circuit decided to short out processing thet request. check ur api key or try again in a second! :(",
-          true
-        );
-      } finally {
-        sendBtn.disabled = false;
-        messageInput.focus();
-      }
-    }
-  </script>
+  }
+</script>
 
 </body>
 </html>
