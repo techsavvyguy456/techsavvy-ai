@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TECHSAVVY AI</title>
+<!-- Markdown renderer -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<!-- LaTeX renderer -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
   :root {
     --bg: #0f1117;
@@ -23,16 +29,14 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    height: 100%;
-  }
+  html, body { height: 100%; }
 
   body {
     background: var(--bg);
     color: var(--text);
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
   }
 
@@ -44,14 +48,22 @@
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 16px 12px;
-    gap: 6px;
+    padding: 14px 12px;
+    gap: 4px;
     overflow: hidden;
     transition: transform 0.25s ease;
     z-index: 100;
   }
 
+  /* Top row: New Chat + Close button */
+  .sidebar-top-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
   #new-chat-btn {
+    flex: 1;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -59,19 +71,33 @@
     color: #fff;
     border: none;
     border-radius: 10px;
-    padding: 11px 16px;
-    font-size: 0.95rem;
+    padding: 11px 14px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    width: 100%;
     transition: opacity 0.15s;
-    margin-bottom: 6px;
   }
   #new-chat-btn:hover { opacity: 0.88; }
-  #new-chat-btn svg { flex-shrink: 0; }
+
+  #close-sidebar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel-2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  #close-sidebar-btn:hover { background: var(--border); color: var(--text); }
 
   .sidebar-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text-dim);
@@ -86,23 +112,23 @@
     padding: 10px 12px;
     border-radius: 9px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--text);
     transition: background 0.15s;
     border: none;
     background: transparent;
     width: 100%;
     text-align: left;
+    line-height: 1.3;
   }
   .suggestion-item:hover { background: var(--panel-2); }
-  .suggestion-item .icon { font-size: 1.1rem; flex-shrink: 0; }
+  .suggestion-item .icon { font-size: 1rem; flex-shrink: 0; }
 
-  /* Spacer pushes footer to bottom */
   .sidebar-spacer { flex: 1; }
 
   .sidebar-footer {
     border-top: 1px solid var(--border);
-    padding-top: 12px;
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -119,10 +145,7 @@
     text-decoration: none;
     transition: background 0.15s, color 0.15s;
   }
-  .sidebar-link:hover {
-    background: var(--panel-2);
-    color: var(--text);
-  }
+  .sidebar-link:hover { background: var(--panel-2); color: var(--text); }
   .sidebar-link .icon { font-size: 1.1rem; }
 
   /* ===================== MAIN ===================== */
@@ -132,6 +155,7 @@
     flex-direction: column;
     overflow: hidden;
     background: radial-gradient(circle at top, #171a26 0%, #0b0d13 70%);
+    min-width: 0;
   }
 
   /* Mobile top bar */
@@ -150,8 +174,9 @@
     border: none;
     color: var(--text);
     cursor: pointer;
-    font-size: 1.3rem;
-    padding: 4px;
+    font-size: 1.4rem;
+    padding: 4px 6px;
+    line-height: 1;
   }
 
   #topbar-title {
@@ -176,8 +201,7 @@
   }
 
   .glow-ring {
-    width: 90px;
-    height: 90px;
+    width: 90px; height: 90px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%);
     border: 2px solid rgba(0,212,255,0.3);
@@ -190,7 +214,7 @@
   }
 
   #hero h1 {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     letter-spacing: 1px;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
@@ -198,24 +222,22 @@
     color: transparent;
   }
 
-  #hero .powered {
-    font-size: 0.95rem;
-    color: var(--text-dim);
-  }
-
-  #hero .ask-anything {
-    margin-top: 8px;
-    font-size: 1.1rem;
-    color: var(--text);
-    opacity: 0.75;
-  }
+  #hero .powered { font-size: 0.95rem; color: var(--text-dim); }
+  #hero .ask-anything { margin-top: 8px; font-size: 1rem; color: var(--text); opacity: 0.75; }
 
   /* ---- Chat ---- */
+  #chat-wrap {
+    flex: 1;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+  }
+
   #chat-container {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
-    display: none;
+    padding: 20px 20px 10px;
+    display: flex;
     flex-direction: column;
     gap: 14px;
     max-width: 860px;
@@ -223,21 +245,18 @@
     margin: 0 auto;
   }
 
-  #chat-container::-webkit-scrollbar { width: 8px; }
-  #chat-container::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 8px;
-  }
+  #chat-container::-webkit-scrollbar { width: 6px; }
+  #chat-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
 
   .message {
     max-width: 78%;
     padding: 12px 16px;
     border-radius: 16px;
-    line-height: 1.5;
-    font-size: 0.96rem;
-    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
     word-wrap: break-word;
-    animation: fadeIn 0.25s ease;
+    overflow-wrap: break-word;
+    animation: fadeIn 0.22s ease;
     box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   }
 
@@ -251,6 +270,7 @@
     background: var(--user-bubble);
     color: #fff;
     border-bottom-right-radius: 4px;
+    white-space: pre-wrap;
   }
 
   .message.bot {
@@ -265,13 +285,86 @@
 
   .message .label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    opacity: 0.6;
-    margin-bottom: 4px;
+    opacity: 0.55;
+    margin-bottom: 6px;
   }
 
+  /* Markdown styles inside bot messages */
+  .message.bot p { margin-bottom: 0.5em; }
+  .message.bot p:last-child { margin-bottom: 0; }
+  .message.bot strong { color: #fff; font-weight: 700; }
+  .message.bot em { color: var(--accent); font-style: italic; }
+  .message.bot h1,.message.bot h2,.message.bot h3 {
+    color: var(--accent);
+    margin: 0.6em 0 0.3em;
+    font-size: 1em;
+  }
+  .message.bot ul, .message.bot ol {
+    padding-left: 1.3em;
+    margin: 0.4em 0;
+  }
+  .message.bot li { margin-bottom: 0.2em; }
+  .message.bot code {
+    background: rgba(0,0,0,0.35);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.88em;
+    color: var(--accent);
+  }
+  .message.bot pre {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    margin: 0.5em 0;
+  }
+  .message.bot pre code {
+    background: none;
+    padding: 0;
+    color: #c9d1d9;
+    font-size: 0.85em;
+  }
+  .message.bot blockquote {
+    border-left: 3px solid var(--accent-2);
+    padding-left: 10px;
+    color: var(--text-dim);
+    margin: 0.4em 0;
+  }
+  .message.bot a { color: var(--accent); }
+  .message.bot hr { border-color: var(--border); margin: 0.6em 0; }
+
+  /* KaTeX */
+  .message.bot .katex { font-size: 1em; }
+
+  /* Cooldown toast */
+  #cooldown-toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #2a1a1a;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  #cooldown-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Typing indicator */
   .typing-indicator {
     align-self: flex-start;
     display: flex;
@@ -282,7 +375,6 @@
     border-radius: 16px;
     border-bottom-left-radius: 4px;
   }
-
   .typing-indicator span {
     width: 6px; height: 6px;
     border-radius: 50%;
@@ -291,7 +383,6 @@
   }
   .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
   .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
   @keyframes blink {
     0%, 80%, 100% { opacity: 0.2; }
     40% { opacity: 1; }
@@ -302,7 +393,8 @@
     flex-shrink: 0;
     border-top: 1px solid var(--border);
     background: var(--panel);
-    padding: 14px 20px;
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
 
   #input-inner {
@@ -319,13 +411,13 @@
 
   #input-inner:focus-within {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(0,212,255,0.15);
+    box-shadow: 0 0 0 2px rgba(0,212,255,0.12);
   }
 
   #message-input {
     flex: 1;
     resize: none;
-    max-height: 140px;
+    max-height: 120px;
     min-height: 24px;
     border: none;
     outline: none;
@@ -333,10 +425,10 @@
     color: var(--text);
     font-size: 0.95rem;
     font-family: inherit;
-    padding: 6px 4px;
+    padding: 5px 4px;
     line-height: 1.4;
+    -webkit-appearance: none;
   }
-
   #message-input::placeholder { color: var(--text-dim); }
 
   #send-btn {
@@ -351,16 +443,17 @@
     padding: 10px 18px;
     border-radius: 10px;
     transition: transform 0.15s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   #send-btn:hover:not(:disabled) { transform: translateY(-1px); }
-  #send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  #send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
   /* ===================== MOBILE ===================== */
   #sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.55);
     z-index: 99;
   }
 
@@ -369,13 +462,16 @@
       position: fixed;
       top: 0; left: 0; bottom: 0;
       transform: translateX(-100%);
+      padding-top: max(14px, env(safe-area-inset-top));
     }
     #sidebar.open { transform: translateX(0); }
     #sidebar-overlay.open { display: block; }
     #topbar { display: flex; }
-    .message { max-width: 88%; }
-    #hero h1 { font-size: 1.7rem; }
-    #input-bar { padding: 10px 12px; }
+    .message { max-width: 90%; font-size: 0.92rem; }
+    #hero h1 { font-size: 1.65rem; }
+    #hero .ask-anything { font-size: 0.9rem; }
+    #input-bar { padding: 10px 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+    #chat-container { padding: 14px 12px 8px; }
   }
 </style>
 </head>
@@ -383,10 +479,13 @@
 
 <!-- ===== SIDEBAR ===== -->
 <nav id="sidebar">
-  <button id="new-chat-btn" onclick="newChat()">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    New Chat
-  </button>
+  <div class="sidebar-top-row">
+    <button id="new-chat-btn" onclick="newChat()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Chat
+    </button>
+    <button id="close-sidebar-btn" onclick="closeSidebar()" title="Close sidebar">✕</button>
+  </div>
 
   <div class="sidebar-label">Suggestions</div>
 
@@ -418,6 +517,9 @@
 <!-- Mobile overlay -->
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
+<!-- Cooldown toast -->
+<div id="cooldown-toast">⏳ Slow down! Wait a moment before sending again.</div>
+
 <!-- ===== MAIN ===== -->
 <div id="main">
 
@@ -435,8 +537,10 @@
     <p class="ask-anything">Ask me anything — ROMs, mods, retro tech, or just vibe 🤙</p>
   </div>
 
-  <!-- Chat messages -->
-  <div id="chat-container"></div>
+  <!-- Chat wrap -->
+  <div id="chat-wrap">
+    <div id="chat-container"></div>
+  </div>
 
   <!-- Input -->
   <div id="input-bar">
@@ -449,14 +553,31 @@
 </div>
 
 <script>
+  // ---- Configure marked (markdown parser) ----
+  marked.setOptions({ breaks: true, gfm: true });
+
   const chatContainer = document.getElementById('chat-container');
+  const chatWrap      = document.getElementById('chat-wrap');
   const messageInput  = document.getElementById('message-input');
   const sendBtn       = document.getElementById('send-btn');
   const hero          = document.getElementById('hero');
   const sidebar       = document.getElementById('sidebar');
   const overlay       = document.getElementById('sidebar-overlay');
+  const cooldownToast = document.getElementById('cooldown-toast');
 
   let conversationHistory = [];
+
+  // ---- Spam cooldown (3 seconds between sends) ----
+  const COOLDOWN_MS = 3000;
+  let lastSentAt = 0;
+  let cooldownTimer = null;
+
+  function showCooldown(remaining) {
+    cooldownToast.textContent = `⏳ Chill! Wait ${remaining}s before sending again.`;
+    cooldownToast.classList.add('show');
+    clearTimeout(cooldownTimer);
+    cooldownTimer = setTimeout(() => cooldownToast.classList.remove('show'), 1800);
+  }
 
   // ---- Sidebar ----
   function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
@@ -466,7 +587,7 @@
   function newChat() {
     conversationHistory = [];
     chatContainer.innerHTML = '';
-    chatContainer.style.display = 'none';
+    chatWrap.style.display = 'none';
     hero.style.display = 'flex';
     messageInput.value = '';
     messageInput.style.height = 'auto';
@@ -476,38 +597,40 @@
 
   // ---- Suggestions ----
   function useSuggestion(text) {
+    closeSidebar();
     messageInput.value = text;
     messageInput.style.height = 'auto';
-    messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
-    closeSidebar();
-    messageInput.focus();
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
     sendMessage();
   }
 
   // ---- Show chat area ----
   function showChat() {
-    if (hero.style.display !== 'none') {
+    if (chatWrap.style.display !== 'flex') {
       hero.style.display = 'none';
-      chatContainer.style.display = 'flex';
+      chatWrap.style.display = 'flex';
     }
   }
 
-  // ---- Auto-resize textarea ----
-  messageInput.addEventListener('input', () => {
-    messageInput.style.height = 'auto';
-    messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
-  });
+  // ---- Render markdown + LaTeX ----
+  function renderBotContent(text) {
+    const html = marked.parse(text);
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    // Render LaTeX inside the div
+    renderMathInElement(div, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+    return div;
+  }
 
-  // ---- Enter to send ----
-  messageInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  sendBtn.addEventListener('click', sendMessage);
-
+  // ---- Append message ----
   function appendMessage(role, text, isError = false) {
     const div = document.createElement('div');
     div.className = `message ${role === 'user' ? 'user' : 'bot'}${isError ? ' error' : ''}`;
@@ -517,7 +640,11 @@
       label.className = 'label';
       label.textContent = 'TECHSAVVY AI';
       div.appendChild(label);
-      div.appendChild(document.createTextNode(text));
+      if (isError) {
+        div.appendChild(document.createTextNode(text));
+      } else {
+        div.appendChild(renderBotContent(text));
+      }
     } else {
       div.textContent = text;
     }
@@ -541,9 +668,35 @@
     if (el) el.remove();
   }
 
+  // ---- Auto-resize textarea ----
+  messageInput.addEventListener('input', () => {
+    messageInput.style.height = 'auto';
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+  });
+
+  // ---- Enter to send (Shift+Enter = newline) ----
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
   async function sendMessage() {
     const text = messageInput.value.trim();
     if (!text) return;
+
+    // Cooldown check
+    const now = Date.now();
+    const elapsed = now - lastSentAt;
+    if (elapsed < COOLDOWN_MS && lastSentAt !== 0) {
+      const remaining = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
+      showCooldown(remaining);
+      return;
+    }
+    lastSentAt = now;
 
     showChat();
     appendMessage('user', text);
@@ -552,7 +705,6 @@
     messageInput.value = '';
     messageInput.style.height = 'auto';
     sendBtn.disabled = true;
-
     showTypingIndicator();
 
     try {
