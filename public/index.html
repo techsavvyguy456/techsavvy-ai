@@ -571,7 +571,8 @@
   const overlay       = document.getElementById('sidebar-overlay');
   const cooldownToast = document.getElementById('cooldown-toast');
 
-  let conversationHistory = [];
+  // Load conversation history from localStorage or default to empty array
+  let conversationHistory = JSON.parse(localStorage.getItem('techsavvy_ai_chat')) || [];
 
   // ---- Spam cooldown (3 seconds between sends) ----
   const COOLDOWN_MS = 3000;
@@ -585,6 +586,24 @@
     cooldownTimer = setTimeout(() => cooldownToast.classList.remove('show'), 1800);
   }
 
+  // Save history to localStorage (keeps last 20 messages)
+  function saveToLocalStorage() {
+    if (conversationHistory.length > 20) {
+      conversationHistory = conversationHistory.slice(-20);
+    }
+    localStorage.setItem('techsavvy_ai_chat', JSON.stringify(conversationHistory));
+  }
+
+  // Restore existing chat UI if messages exist in localStorage
+  function loadFromLocalStorage() {
+    if (conversationHistory.length > 0) {
+      showChat();
+      conversationHistory.forEach(msg => {
+        appendMessage(msg.role === 'user' ? 'user' : 'bot', msg.content, false, false);
+      });
+    }
+  }
+
   // ---- Sidebar ----
   function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
@@ -592,6 +611,7 @@
   // ---- New chat ----
   function newChat() {
     conversationHistory = [];
+    localStorage.removeItem('techsavvy_ai_chat');
     chatContainer.innerHTML = '';
     chatWrap.style.display = 'none';
     hero.style.display = 'flex';
@@ -637,7 +657,7 @@
   }
 
   // ---- Append message ----
-  function appendMessage(role, text, isError = false) {
+  function appendMessage(role, text, isError = false, shouldSave = true) {
     const div = document.createElement('div');
     div.className = `message ${role === 'user' ? 'user' : 'bot'}${isError ? ' error' : ''}`;
 
@@ -657,6 +677,11 @@
 
     chatContainer.appendChild(div);
     chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    if (shouldSave && !isError) {
+      saveToLocalStorage();
+    }
+
     return div;
   }
 
@@ -705,8 +730,8 @@
     lastSentAt = now;
 
     showChat();
-    appendMessage('user', text);
     conversationHistory.push({ role: 'user', content: text });
+    appendMessage('user', text, false, true);
 
     messageInput.value = '';
     messageInput.style.height = 'auto';
@@ -724,21 +749,27 @@
       removeTypingIndicator();
 
       if (!res.ok) {
-        appendMessage('bot', data.error || 'Something went wrong.', true);
+        // Roll back prompt on error
+        conversationHistory.pop();
+        appendMessage('bot', data.error || 'Something went wrong.', true, false);
         return;
       }
 
-      appendMessage('bot', data.reply);
       conversationHistory.push({ role: 'assistant', content: data.reply });
+      appendMessage('bot', data.reply, false, true);
 
     } catch (err) {
       removeTypingIndicator();
-      appendMessage('bot', "oh noooooo! mah circuit decided to short out processing thet request. check ur api key or try again in a second! :(", true);
+      conversationHistory.pop();
+      appendMessage('bot', "oh noooooo! mah circuit decided to short out processing thet request. check ur api key or try again in a second! :(", true, false);
     } finally {
       sendBtn.disabled = false;
       messageInput.focus();
     }
   }
+
+  // Initialize UI on load
+  loadFromLocalStorage();
 </script>
 
 </body>
