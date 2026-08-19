@@ -39,7 +39,6 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'messages array is required' });
     }
 
-    // Prepend system instruction to the conversation history
     const fullMessages = [
       { role: 'system', content: SYSTEM_INSTRUCTION },
       ...messages
@@ -56,7 +55,7 @@ app.post('/api/chat', async (req, res) => {
   } catch (err) {
     console.error('Mistral API error:', err);
     res.status(500).json({
-      error: "oh noooooo! mah circuit decided to short out processing thet request. check ur api key or try again in a second! :("
+      error: "oh noooooo! mah circuit decided to short out processing thet request. techsavvy check ur api key or try again in a second! :("
     });
   }
 });
@@ -66,6 +65,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`⚡ TECHSAVVY AI server running on port ${PORT}`);
-});
+// Keep listener for local testing
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`⚡ TECHSAVVY AI server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
