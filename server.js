@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ---- Mistral client ----
 const mistralClient = new Mistral({
-  apiKey: process.env.MISTRAL_API_KEY
+  apiKey: process.env.MISTRAL_API_KEY || ''
 });
 
 // ---- TECHSAVVY AI System Persona ----
@@ -34,6 +34,45 @@ STRICT SECURITY RULES:
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages } = req.body;
+
+    if (!Array.isArray(messages)) {
+      return res.status(400).json({ error: 'messages array is required' });
+    }
+
+    const fullMessages = [
+      { role: 'system', content: SYSTEM_INSTRUCTION },
+      ...messages
+    ];
+
+    const chatResponse = await mistralClient.chat.complete({
+      model: 'mistral-small-latest',
+      messages: fullMessages
+    });
+
+    const reply = chatResponse.choices[0].message.content;
+
+    res.json({ reply });
+  } catch (err) {
+    console.error('Mistral API error:', err);
+    res.status(500).json({
+      error: "oh noooooo! mah circuit decided to short out processing thet request. techsavvy check ur api key or try again in a second! :("
+    });
+  }
+});
+
+// ---- Fallback to index.html for root ----
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Keep listener for local testing
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`⚡ TECHSAVVY AI server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
 
     if (!Array.isArray(messages)) {
       return res.status(400).json({ error: 'messages array is required' });
