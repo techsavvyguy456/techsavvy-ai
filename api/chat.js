@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     ];
 
     const chatResponse = await mistralClient.chat.complete({
-      model: 'mistral-small-latest',
+      model: 'open-mistral-7b',
       messages: fullMessages
     });
 
