@@ -589,33 +589,57 @@
     }
 
     async function saveUsername() {
-      const newName = document.getElementById('username-input').value.trim();
-      if (!newName || !currentUser) return;
+      const inputEl = document.getElementById('username-input');
+      const btnEl = document.getElementById('save-username-btn');
+      const newName = inputEl ? inputEl.value.trim() : '';
 
-      saveUsernameBtn.disabled = true;
-      saveUsernameBtn.textContent = 'Saving... ⏳';
+      if (!newName) {
+        alert('Pwease enter a username first! ✍️');
+        return;
+      }
+
+      // If currentUser is not initialized, proactively request user context from Supabase
+      if (!currentUser && supabase) {
+        const { data: userData } = await supabase.auth.getUser();
+        currentUser = userData?.user || null;
+      }
+
+      if (!currentUser) {
+        alert('Pwease sign in first to save your custom handle! 🔐');
+        return;
+      }
+
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = 'Saving... ⏳';
+      }
 
       try {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .upsert({ 
             id: currentUser.id, 
             username: newName, 
             updated_at: new Date().toISOString() 
-          });
+          }, { onConflict: 'id' });
 
         if (error) {
-          alert('Save failed: ' + error.message);
+          console.error('Supabase profile save error:', error);
+          alert('Save failed: ' + error.message + ' ❌');
         } else {
           authBtn.textContent = `@${newName}`;
           localStorage.setItem('techsavvy_cached_username', newName);
+          alert('Username saved successfully as @' + newName + '! 🥳✨');
           toggleProfileModal();
         }
       } catch (err) {
-        alert('Could not reach profile database.');
+        console.error('Profile network catch:', err);
+        alert('Network error communicating with Supabase database. 🌐⚠️');
       } finally {
-        saveUsernameBtn.disabled = false;
-        saveUsernameBtn.textContent = 'Save Name';
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = 'Save Name';
+        }
       }
     }
 
