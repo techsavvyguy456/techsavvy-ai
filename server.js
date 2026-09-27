@@ -1,11 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// Serve static assets from public folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicitly send index.html when visiting the root '/'
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const DEFAULT_INSTRUCTIONS = `
 You are TECHSAVVY AI, an ultra-lightweight, clever tech assistant built by TECHSAVVY YT.
@@ -20,13 +28,11 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Messages array is required.' });
   }
 
-  // Combine default persona with user custom instructions
   let systemPrompt = DEFAULT_INSTRUCTIONS.trim();
   if (customInstructions && customInstructions.trim()) {
     systemPrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
   }
 
-  // Fallback default model if none selected
   const selectedModel = model || 'mistralai/mistral-7b-instruct:free';
 
   try {
