@@ -349,12 +349,14 @@
     </div>
 
     <div class="nav-controls">
+      <!-- Updated active model options eliminating broken endpoints -->
       <select id="model-select" title="Select AI Model">
-        <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
+        <option value="openrouter/free" selected>Auto Free Router 🔀 (Recommended)</option>
         <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (Free)</option>
+        <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
         <option value="google/gemma-2-9b-it:free">Gemma 2 9B (Free)</option>
         <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B (Free)</option>
-        <option value="openrouter/free">Auto Free Router 🔀</option>
+        <option value="mistralai/mistral-7b-instruct-v0.3:free">Mistral 7B v0.3 (Free)</option>
       </select>
 
       <button type="button" onclick="toggleSettingsModal()" title="Custom System Instructions">
@@ -456,7 +458,6 @@
   </div>
 
   <script>
-    // 1. SUPABASE CLIENT INITIALIZATION (FORCED LOCALSTORAGE PERSISTENCE)
     const SUPABASE_URL = 'https://ujgxwyzdvdhmtinpjgxc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_piPDZCz5m64H7LioYcv0dw_V-q_H0Bu';
     
@@ -488,7 +489,6 @@
     const authBtn = document.getElementById('auth-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
-    // 2. AUTH & USER HANDLING
     async function applyUserSession(session) {
       currentUser = session?.user || null;
       if (currentUser) {
@@ -507,14 +507,10 @@
     }
 
     if (supabase) {
-      // Restore session on reload immediately
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          applyUserSession(session);
-        }
+        if (session) applyUserSession(session);
       });
 
-      // Keep listening for auth state changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         await applyUserSession(session);
       });
@@ -560,7 +556,6 @@
       }
     }
 
-    // 3. PROFILE / USERNAME LOGIC
     async function fetchUserProfile(userId) {
       const { data, error } = await supabase
         .from('profiles')
@@ -592,7 +587,6 @@
       }
     }
 
-    // 4. CHAT PERSISTENCE IN SUPABASE
     async function saveChatToCloud() {
       if (!currentUser || !supabase || conversationHistory.length === 0) return;
 
@@ -652,7 +646,6 @@
       `;
     }
 
-    // 5. MODAL HANDLERS
     function toggleSettingsModal() {
       const m = document.getElementById('settings-modal');
       m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
@@ -680,7 +673,6 @@
       }
     }
 
-    // 6. CHAT DISPLAY & SEND
     function appendBubble(role, text, isError = false) {
       const splash = document.getElementById('welcome-splash');
       if (splash) splash.remove();
