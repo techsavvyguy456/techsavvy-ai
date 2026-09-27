@@ -20,6 +20,7 @@
       --text-muted: #9ca3af;
       --danger-red: #ef4444;
       --success-green: #10b981;
+      --discord-purple: #5865F2;
     }
 
     * {
@@ -95,6 +96,20 @@
 
     .btn-primary:hover { background: #1d4ed8; }
 
+    .discord-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-color: rgba(88, 101, 242, 0.4);
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .discord-btn:hover {
+      border-color: var(--discord-purple);
+      background: rgba(88, 101, 242, 0.15);
+    }
+
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -111,23 +126,86 @@
     #welcome-splash {
       margin: auto;
       text-align: center;
-      max-width: 540px;
-      padding: 28px 20px;
+      max-width: 580px;
+      width: 100%;
+      padding: 24px 20px;
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     #welcome-splash h2 {
       color: var(--accent-cyan);
-      margin-bottom: 8px;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
     }
 
     #welcome-splash p {
       color: var(--text-muted);
       font-size: 0.92rem;
       line-height: 1.5;
+    }
+
+    .starter-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+      text-align: left;
+    }
+
+    .prompt-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.86rem;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prompt-chip strong {
+      color: var(--accent-cyan);
+      font-size: 0.88rem;
+    }
+
+    .prompt-chip span {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.3;
+    }
+
+    .prompt-chip:hover {
+      border-color: var(--accent-cyan);
+      background: #232a3d;
+      transform: translateY(-2px);
+    }
+
+    .discord-banner {
+      background: rgba(88, 101, 242, 0.12);
+      border: 1px dashed var(--discord-purple);
+      border-radius: 10px;
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-main);
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .discord-banner:hover {
+      background: rgba(88, 101, 242, 0.22);
+      border-style: solid;
+      transform: translateY(-1px);
     }
 
     .chat-bubble {
@@ -280,7 +358,7 @@
       outline: none;
     }
 
-    /* CHAT HISTORY DRAWER */
+    /* HISTORY DRAWER */
     #history-drawer {
       display: none;
       position: fixed;
@@ -418,11 +496,12 @@
         width: 100%;
       }
       #model-select { font-size: 0.82rem; padding: 6px 8px; }
-      .nav-controls button { padding: 6px 10px; font-size: 0.82rem; }
+      .nav-controls button, .nav-controls a button { padding: 6px 10px; font-size: 0.82rem; }
       #chat-container { padding: 14px 10px; gap: 12px; }
       .chat-bubble { max-width: 92%; padding: 10px 14px; font-size: 0.9rem; }
       footer { padding: 10px 12px; }
       #history-drawer { width: 85%; }
+      .starter-chips { grid-template-columns: 1fr; }
       .modal-backdrop { align-items: flex-end; padding: 0; }
       .modal-box {
         max-width: 100%;
@@ -476,6 +555,16 @@
         ➕ New
       </button>
 
+      <!-- DISCORD SUPPORT BUTTON -->
+      <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+        <button type="button" class="discord-btn" title="Join Discord Community">
+          <svg width="15" height="15" viewBox="0 0 127.14 96.36" fill="#5865F2">
+            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+          </svg>
+          Discord
+        </button>
+      </a>
+
       <button type="button" id="auth-btn" class="btn-primary" onclick="toggleAuthModal()">
         Sign In
       </button>
@@ -485,10 +574,35 @@
   <div id="chat-container">
     <div id="welcome-splash">
       <h2>Welcome to TECHSAVVY AI ⚡</h2>
-      <p>
-        Your dedicated AI companion for retro tech modding, Android customization, and web development.<br/><br/>
-        Sign in to save your conversation history across devices and set your custom handle!
-      </p>
+      <p>Your AI wingman for Android modding, custom ROMs, legacy gear, and coding projects!</p>
+      
+      <!-- SUGGESTION CHIPS -->
+      <div class="starter-chips">
+        <div class="prompt-chip" onclick="triggerStarterPrompt('How do I safely unlock the bootloader on an older Android device?')">
+          <strong>📱 Bootloader & ROMs</strong>
+          <span>How to safely unlock bootloaders & flash custom recoveries.</span>
+        </div>
+        <div class="prompt-chip" onclick="triggerStarterPrompt('What are the best ADB commands to debloat an Android phone without root?')">
+          <strong>⚡ ADB Debloat Tricks</strong>
+          <span>Clean up carrier bloatware and speed up performance.</span>
+        </div>
+        <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone that is stuck in a bootloop?')">
+          <strong>🛠️ Bootloop Recovery</strong>
+          <span>Troubleshoot and rescue soft-bricked hardware.</span>
+        </div>
+        <div class="prompt-chip" onclick="triggerStarterPrompt('How can I optimize and run classic Minecraft PE on older Android versions?')">
+          <strong>🎮 Retro Minecraft PE</strong>
+          <span>Performance configs and APK tips for vintage versions.</span>
+        </div>
+      </div>
+
+      <!-- DISCORD COMMUNITY INVITE BANNER -->
+      <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" class="discord-banner">
+        <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
+          <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+        </svg>
+        <span>Need modding advice or tech support? <strong>Join the Official Discord!</strong></span>
+      </a>
     </div>
   </div>
 
@@ -603,7 +717,7 @@
     const drawerOverlay = document.getElementById('drawer-overlay');
     const historyList = document.getElementById('history-list');
 
-    // Instant local cache restoration so UI never flashes "Sign In"
+    // Restore cached username
     const cachedUsername = localStorage.getItem('techsavvy_cached_username');
     if (cachedUsername) {
       authBtn.textContent = `@${cachedUsername}`;
@@ -772,7 +886,7 @@
       }
     }
 
-    // CHAT MANAGEMENT (SAVE, LOAD, DELETE, LIST)
+    // CHAT MANAGEMENT
     async function saveChatToCloud() {
       if (!currentUser || !supabase || conversationHistory.length === 0) return;
 
@@ -931,15 +1045,50 @@
       }
     }
 
+    function renderWelcomeScreen() {
+      return `
+        <div id="welcome-splash">
+          <h2>Welcome to TECHSAVVY AI ⚡</h2>
+          <p>Your AI wingman for Android modding, custom ROMs, legacy gear, and coding projects!</p>
+          
+          <div class="starter-chips">
+            <div class="prompt-chip" onclick="triggerStarterPrompt('How do I safely unlock the bootloader on an older Android device?')">
+              <strong>📱 Bootloader & ROMs</strong>
+              <span>How to safely unlock bootloaders & flash custom recoveries.</span>
+            </div>
+            <div class="prompt-chip" onclick="triggerStarterPrompt('What are the best ADB commands to debloat an Android phone without root?')">
+              <strong>⚡ ADB Debloat Tricks</strong>
+              <span>Clean up carrier bloatware and speed up performance.</span>
+            </div>
+            <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone that is stuck in a bootloop?')">
+              <strong>🛠️ Bootloop Recovery</strong>
+              <span>Troubleshoot and rescue soft-bricked hardware.</span>
+            </div>
+            <div class="prompt-chip" onclick="triggerStarterPrompt('How can I optimize and run classic Minecraft PE on older Android versions?')">
+              <strong>🎮 Retro Minecraft PE</strong>
+              <span>Performance configs and APK tips for vintage versions.</span>
+            </div>
+          </div>
+
+          <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" class="discord-banner">
+            <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
+              <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+            </svg>
+            <span>Need modding advice or tech support? <strong>Join the Official Discord!</strong></span>
+          </a>
+        </div>
+      `;
+    }
+
     function startNewChat() {
       currentChatId = null;
       conversationHistory = [];
-      chatContainer.innerHTML = `
-        <div id="welcome-splash">
-          <h2>Welcome to TECHSAVVY AI ⚡</h2>
-          <p>Fresh conversation started. What tech project are we building next?</p>
-        </div>
-      `;
+      chatContainer.innerHTML = renderWelcomeScreen();
+    }
+
+    function triggerStarterPrompt(questionText) {
+      userInput.value = questionText;
+      document.querySelector('.input-dock').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     }
 
     function toggleSettingsModal() {
