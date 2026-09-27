@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>TECHSAVVY AI ⚡</title>
   
-  <!-- Supabase JS Client with publishable key support -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
-  
-  <!-- Markdown rendering support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
@@ -22,14 +19,14 @@
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --danger-red: #ef4444;
-      --header-height: 60px;
+      --success-green: #10b981;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -43,9 +40,6 @@
       overflow: hidden;
     }
 
-    /* =========================================================
-       1. TOP NAVBAR / HEADER
-       ========================================================= */
     header {
       background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
@@ -69,9 +63,7 @@
       white-space: nowrap;
     }
 
-    .brand span {
-      color: #fff;
-    }
+    .brand span { color: #fff; }
 
     .nav-controls {
       display: flex;
@@ -92,13 +84,8 @@
       outline: none;
     }
 
-    select:focus, button:focus {
-      border-color: var(--accent-cyan);
-    }
-
-    button:hover {
-      background: #252c42;
-    }
+    select:focus, button:focus { border-color: var(--accent-cyan); }
+    button:hover { background: #252c42; }
 
     .btn-primary {
       background: var(--accent-blue);
@@ -106,13 +93,8 @@
       font-weight: 600;
     }
 
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
+    .btn-primary:hover { background: #1d4ed8; }
 
-    /* =========================================================
-       2. CHAT SCROLL AREA
-       ========================================================= */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -223,9 +205,6 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
-    /* =========================================================
-       3. INPUT FOOTER
-       ========================================================= */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
@@ -251,13 +230,8 @@
       outline: none;
     }
 
-    .input-dock input:focus {
-      border-color: var(--accent-cyan);
-    }
+    .input-dock input:focus { border-color: var(--accent-cyan); }
 
-    /* =========================================================
-       4. MODALS & POPUPS
-       ========================================================= */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -317,17 +291,8 @@
       border-radius: 8px;
     }
 
-    .oauth-btn.google {
-      background: #ffffff;
-      color: #111;
-      border: none;
-    }
-
-    .oauth-btn.github {
-      background: #24292e;
-      color: #fff;
-      border: 1px solid #3f475a;
-    }
+    .oauth-btn.google { background: #ffffff; color: #111; border: none; }
+    .oauth-btn.github { background: #24292e; color: #fff; border: 1px solid #3f475a; }
 
     .divider {
       text-align: center;
@@ -337,28 +302,13 @@
       font-size: 0.8rem;
     }
 
-    /* =========================================================
-       5. RESPONSIVE BREAKPOINTS (PHONE, TABLET, DESKTOP)
-       ========================================================= */
-
-    /* TABLET OPTIMIZATIONS (768px to 1024px) */
+    /* RESPONSIVE LAYOUTS */
     @media (min-width: 768px) and (max-width: 1024px) {
-      header {
-        padding: 12px 16px;
-      }
-      #chat-container {
-        max-width: 92%;
-        padding: 20px 12px;
-      }
-      .chat-bubble {
-        max-width: 85%;
-      }
-      .input-dock {
-        max-width: 92%;
-      }
+      #chat-container { max-width: 92%; padding: 20px 12px; }
+      .chat-bubble { max-width: 85%; }
+      .input-dock { max-width: 92%; }
     }
 
-    /* PHONE / MOBILE OPTIMIZATIONS (< 768px) */
     @media (max-width: 767px) {
       header {
         flex-direction: column;
@@ -366,75 +316,19 @@
         padding: 10px 12px;
         gap: 8px;
       }
-
-      .brand {
-        justify-content: center;
-        font-size: 1.05rem;
-      }
-
+      .brand { justify-content: center; font-size: 1.05rem; }
       .nav-controls {
         display: grid;
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: 1fr auto auto auto;
         gap: 6px;
         width: 100%;
       }
-
-      #model-select {
-        font-size: 0.82rem;
-        padding: 6px 8px;
-        text-overflow: ellipsis;
-      }
-
-      .nav-controls button {
-        padding: 6px 10px;
-        font-size: 0.82rem;
-        white-space: nowrap;
-      }
-
-      #chat-container {
-        padding: 14px 10px;
-        gap: 12px;
-      }
-
-      #welcome-splash {
-        padding: 20px 14px;
-        margin: 20px auto;
-      }
-
-      #welcome-splash h2 {
-        font-size: 1.25rem;
-      }
-
-      .chat-bubble {
-        max-width: 92%;
-        padding: 10px 14px;
-        font-size: 0.9rem;
-      }
-
-      footer {
-        padding: 10px 12px;
-      }
-
-      .input-dock {
-        gap: 6px;
-      }
-
-      .input-dock input {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-      }
-
-      #send-btn {
-        padding: 10px 14px;
-        font-size: 0.9rem;
-      }
-
-      /* Modal Mobile Sheet Style */
-      .modal-backdrop {
-        align-items: flex-end;
-        padding: 0;
-      }
-
+      #model-select { font-size: 0.82rem; padding: 6px 8px; }
+      .nav-controls button { padding: 6px 10px; font-size: 0.82rem; }
+      #chat-container { padding: 14px 10px; gap: 12px; }
+      .chat-bubble { max-width: 92%; padding: 10px 14px; font-size: 0.9rem; }
+      footer { padding: 10px 12px; }
+      .modal-backdrop { align-items: flex-end; padding: 0; }
       .modal-box {
         max-width: 100%;
         border-bottom-left-radius: 0;
@@ -446,7 +340,6 @@
 </head>
 <body>
 
-  <!-- TOP HEADER -->
   <header>
     <div class="brand">
       ⚡ TECHSAVVY <span>AI</span>
@@ -465,24 +358,26 @@
         ⚙️ Prompt
       </button>
 
+      <button type="button" id="new-chat-btn" onclick="startNewChat()" title="Start New Chat" style="display: none;">
+        ➕ New
+      </button>
+
       <button type="button" id="auth-btn" class="btn-primary" onclick="toggleAuthModal()">
         Sign In
       </button>
     </div>
   </header>
 
-  <!-- CHAT MESSAGES DISPLAY -->
   <div id="chat-container">
     <div id="welcome-splash">
       <h2>Welcome to TECHSAVVY AI ⚡</h2>
       <p>
         Your dedicated AI companion for retro tech modding, Android customization, and web development.<br/><br/>
-        Select any model above, configure your custom instructions, or jump straight into the chat!
+        Sign in to save your conversation history across devices and set your custom handle!
       </p>
     </div>
   </div>
 
-  <!-- INPUT FOOTER -->
   <footer>
     <form class="input-dock" onsubmit="handleSend(event)">
       <input 
@@ -497,22 +392,20 @@
     </form>
   </footer>
 
-  <!-- MODAL 1: CUSTOM INSTRUCTIONS -->
+  <!-- CUSTOM PROMPT MODAL -->
   <div id="settings-modal" class="modal-backdrop">
     <div class="modal-box">
       <h3>⚙️ Custom Instructions</h3>
-      <p>
-        The base TECHSAVVY persona remains active at all times. Add your own specific rules or formatting requests below:
-      </p>
-      <textarea id="custom-prompt-input" rows="4" placeholder="e.g. Always structure coding solutions with step-by-step explanations..."></textarea>
+      <p>Add custom persona behavior or formatting preferences below:</p>
+      <textarea id="custom-prompt-input" rows="4"></textarea>
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button type="button" onclick="toggleSettingsModal()">Cancel</button>
-        <button type="button" class="btn-primary" onclick="saveCustomPrompt()">Save Instructions</button>
+        <button type="button" class="btn-primary" onclick="saveCustomPrompt()">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 2: USER AUTHENTICATION -->
+  <!-- AUTH MODAL -->
   <div id="auth-modal" class="modal-backdrop">
     <div class="modal-box">
       <h3 style="text-align: center;">Account Login</h3>
@@ -543,8 +436,23 @@
     </div>
   </div>
 
+  <!-- PROFILE / USERNAME MODAL -->
+  <div id="profile-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3>👤 Account Profile</h3>
+      <p>Choose your custom handle for TECHSAVVY AI:</p>
+      <input type="text" id="username-input" placeholder="Enter custom username..." maxlength="24" />
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+        <button type="button" style="color: var(--danger-red); border-color: rgba(239,68,68,0.3);" onclick="handleSignOut()">Log Out</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="toggleProfileModal()">Cancel</button>
+          <button type="button" class="btn-primary" onclick="saveUsername()">Save Name</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 1. SUPABASE CLIENT INITIALIZATION
     const SUPABASE_URL = 'https://ujgxwyzdvdhmtinpjgxc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_piPDZCz5m64H7LioYcv0dw_V-q_H0Bu';
     
@@ -557,23 +465,21 @@
       console.warn('Supabase initialization warning:', err);
     }
 
-    // 2. RUNTIME STATE
-    const conversationHistory = [];
+    let conversationHistory = [];
     let customInstructions = localStorage.getItem('techsavvy_custom_instructions') || '';
     let currentUser = null;
+    let currentChatId = null;
 
     const chatContainer = document.getElementById('chat-container');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const modelSelect = document.getElementById('model-select');
     const authBtn = document.getElementById('auth-btn');
+    const newChatBtn = document.getElementById('new-chat-btn');
 
-    // 3. AUTH HANDLING
+    // AUTH HANDLING
     async function loginWithProvider(provider) {
-      if (!supabase) {
-        alert('Supabase client could not be loaded. Pwease check connection.');
-        return;
-      }
+      if (!supabase) return alert('Supabase client error.');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: { redirectTo: window.location.origin }
@@ -582,60 +488,152 @@
     }
 
     async function handleEmailLogin() {
-      if (!supabase) {
-        alert('Supabase client could not be loaded. Pwease check connection.');
-        return;
-      }
+      if (!supabase) return alert('Supabase client error.');
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-pass').value.trim();
-      if (!email || !password) return alert('Pwease fill in both email and password.');
+      if (!email || !password) return alert('Pwease fill in both fields.');
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return alert(error.message);
       toggleAuthModal();
     }
 
     async function handleEmailSignUp() {
-      if (!supabase) {
-        alert('Supabase client could not be loaded. Pwease check connection.');
-        return;
-      }
+      if (!supabase) return alert('Supabase client error.');
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-pass').value.trim();
-      if (!email || !password) return alert('Pwease fill in both email and password.');
+      if (!email || !password) return alert('Pwease fill in both fields.');
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ email, password });
       if (error) return alert(error.message);
       alert('Verification link sent! Check your inbox 📬');
       toggleAuthModal();
     }
 
+    async function handleSignOut() {
+      if (confirm('Log out of TECHSAVVY AI?')) {
+        await supabase.auth.signOut();
+        toggleProfileModal();
+        startNewChat();
+      }
+    }
+
+    // PROFILE / USERNAME LOGIC
+    async function fetchUserProfile(userId) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .single();
+
+      if (!error && data?.username) {
+        authBtn.textContent = `@${data.username}`;
+      } else {
+        const fallback = currentUser.email ? currentUser.email.split('@')[0] : 'User';
+        authBtn.textContent = fallback;
+      }
+    }
+
+    async function saveUsername() {
+      const newName = document.getElementById('username-input').value.trim();
+      if (!newName || !currentUser) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: currentUser.id, username: newName, updated_at: new Date() });
+
+      if (error) {
+        alert(error.message);
+      } else {
+        authBtn.textContent = `@${newName}`;
+        toggleProfileModal();
+      }
+    }
+
+    // CHAT PERSISTENCE IN SUPABASE
+    async function saveChatToCloud() {
+      if (!currentUser || !supabase || conversationHistory.length === 0) return;
+
+      const title = conversationHistory[0]?.content?.slice(0, 30) || 'New Conversation';
+
+      if (!currentChatId) {
+        const { data, error } = await supabase
+          .from('chats')
+          .insert({
+            user_id: currentUser.id,
+            title: title,
+            messages: conversationHistory,
+            updated_at: new Date()
+          })
+          .select('id')
+          .single();
+
+        if (!error && data) currentChatId = data.id;
+      } else {
+        await supabase
+          .from('chats')
+          .update({
+            messages: conversationHistory,
+            updated_at: new Date()
+          })
+          .eq('id', currentChatId);
+      }
+    }
+
+    async function loadLatestChat() {
+      if (!currentUser || !supabase) return;
+
+      const { data, error } = await supabase
+        .from('chats')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!error && data && Array.isArray(data.messages) && data.messages.length > 0) {
+        currentChatId = data.id;
+        conversationHistory = data.messages;
+        chatContainer.innerHTML = '';
+        conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+      }
+    }
+
+    function startNewChat() {
+      currentChatId = null;
+      conversationHistory = [];
+      chatContainer.innerHTML = `
+        <div id="welcome-splash">
+          <h2>Welcome to TECHSAVVY AI ⚡</h2>
+          <p>Fresh conversation started. What tech project are we building next?</p>
+        </div>
+      `;
+    }
+
     if (supabase) {
-      supabase.auth.onAuthStateChange((event, session) => {
+      supabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session?.user || null;
         if (currentUser) {
-          const username = currentUser.email ? currentUser.email.split('@')[0] : 'User';
-          authBtn.textContent = username;
           authBtn.classList.remove('btn-primary');
-          authBtn.onclick = async () => {
-            if (confirm('Do you want to log out?')) {
-              await supabase.auth.signOut();
-            }
-          };
+          authBtn.onclick = toggleProfileModal;
+          newChatBtn.style.display = 'inline-block';
+          await fetchUserProfile(currentUser.id);
+          await loadLatestChat();
         } else {
           authBtn.textContent = 'Sign In';
           authBtn.classList.add('btn-primary');
           authBtn.onclick = toggleAuthModal;
+          newChatBtn.style.display = 'none';
+          currentChatId = null;
         }
       });
     }
 
-    // 4. MODALS
+    // MODAL HANDLERS
     function toggleSettingsModal() {
-      const modal = document.getElementById('settings-modal');
-      const isVisible = modal.style.display === 'flex';
-      modal.style.display = isVisible ? 'none' : 'flex';
-      if (!isVisible) {
+      const m = document.getElementById('settings-modal');
+      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+      if (m.style.display === 'flex') {
         document.getElementById('custom-prompt-input').value = customInstructions;
       }
     }
@@ -647,13 +645,20 @@
     }
 
     function toggleAuthModal() {
-      const modal = document.getElementById('auth-modal');
-      const isVisible = modal.style.display === 'flex';
-      modal.style.display = isVisible ? 'none' : 'flex';
+      const m = document.getElementById('auth-modal');
+      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    // 5. CHAT LOGIC
-    function appendMessage(role, text, isError = false) {
+    function toggleProfileModal() {
+      const m = document.getElementById('profile-modal');
+      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+      if (m.style.display === 'flex' && currentUser) {
+        document.getElementById('username-input').value = authBtn.textContent.replace('@', '');
+      }
+    }
+
+    // CHAT DISPLAY & SEND
+    function appendBubble(role, text, isError = false) {
       const splash = document.getElementById('welcome-splash');
       if (splash) splash.remove();
 
@@ -689,7 +694,7 @@
       const text = userInput.value.trim();
       if (!text) return;
 
-      appendMessage('user', text);
+      appendBubble('user', text);
       conversationHistory.push({ role: 'user', content: text });
 
       userInput.value = '';
@@ -712,17 +717,18 @@
 
         if (!response.ok) {
           conversationHistory.pop();
-          appendMessage('bot', data.error || 'Server error occurred.', true);
+          appendBubble('bot', data.error || 'Server error occurred.', true);
           return;
         }
 
         conversationHistory.push({ role: 'assistant', content: data.reply });
-        appendMessage('bot', data.reply);
+        appendBubble('bot', data.reply);
+        await saveChatToCloud();
 
       } catch (err) {
         removeTypingIndicator();
         conversationHistory.pop();
-        appendMessage('bot', 'Network failure connecting to AI service.', true);
+        appendBubble('bot', 'Network failure connecting to AI service.', true);
       } finally {
         sendBtn.disabled = false;
         userInput.focus();
