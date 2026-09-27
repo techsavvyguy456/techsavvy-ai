@@ -713,6 +713,40 @@
     const drawerOverlay = document.getElementById('drawer-overlay');
     const historyList = document.getElementById('history-list');
 
+    // LocalStorage helper for resilient instant history
+    function getLocalChats() {
+      try {
+        return JSON.parse(localStorage.getItem('techsavvy_saved_chats') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLocalChat(id, title, messages) {
+      try {
+        const chats = getLocalChats();
+        const existingIdx = chats.findIndex(c => c.id === id);
+        const item = { id, title, messages, updated_at: new Date().toISOString() };
+        if (existingIdx >= 0) {
+          chats[existingIdx] = item;
+        } else {
+          chats.unshift(item);
+        }
+        localStorage.setItem('techsavvy_saved_chats', JSON.stringify(chats.slice(0, 30)));
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+    }
+
+    function deleteLocalChat(id) {
+      try {
+        const chats = getLocalChats().filter(c => c.id !== id);
+        localStorage.setItem('techsavvy_saved_chats', JSON.stringify(chats));
+      } catch (e) {
+        console.warn('LocalStorage delete error:', e);
+      }
+    }
+
     // Restore cached username
     const cachedUsername = localStorage.getItem('techsavvy_cached_username');
     if (cachedUsername) {
@@ -884,18 +918,27 @@
 
     // CHAT MANAGEMENT
     async function saveChatToCloud() {
-      if (!supabase || conversationHistory.length === 0) return;
+      if (conversationHistory.length === 0) return;
 
+      const title = conversationHistory[0]?.content?.slice(0, 32) || 'New Conversation';
+      const activeId = currentChatId || `local-${Date.now()}`;
+      currentChatId = activeId;
+
+      // Always save to localStorage immediately
+      saveLocalChat(activeId, title, conversationHistory);
+
+      if (!supabase) return;
       if (!currentUser) {
         const { data: userData } = await supabase.auth.getUser();
         currentUser = userData?.user || null;
       }
       if (!currentUser) return;
 
-      const title = conversationHistory[0]?.content?.slice(0, 32) || 'New Conversation';
-
       try {
-        if (!currentChatId) {
+        // Check if activeId is a standard UUID before database insert
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(activeId);
+
+        if (!isUUID) {
           const { data, error } = await supabase
             .from('chats')
             .insert({
@@ -907,7 +950,11 @@
             .select('id')
             .maybeSingle();
 
-          if (!error && data) currentChatId = data.id;
+          if (!error && data?.id) {
+            deleteLocalChat(activeId);
+            currentChatId = data.id;
+            saveLocalChat(data.id, title, conversationHistory);
+          }
         } else {
           await supabase
             .from('chats')
@@ -915,21 +962,24 @@
               messages: conversationHistory,
               updated_at: new Date().toISOString()
             })
-            .eq('id', currentChatId);
+            .eq('id', activeId);
         }
       } catch (err) {
-        console.warn('Cloud chat sync error:', err);
+        console.warn('Cloud sync background notice:', err);
       }
     }
 
     async function loadLatestChat() {
-      if (!supabase) return;
-
-      if (!currentUser) {
-        const { data: userData } = await supabase.auth.getUser();
-        currentUser = userData?.user || null;
+      // Check local cache first for instant response
+      const localChats = getLocalChats();
+      if (localChats.length > 0 && (!conversationHistory || conversationHistory.length === 0)) {
+        currentChatId = localChats[0].id;
+        conversationHistory = localChats[0].messages || [];
+        chatContainer.innerHTML = '';
+        conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
       }
-      if (!currentUser) return;
+
+      if (!supabase || !currentUser) return;
 
       try {
         const { data, error } = await supabase
@@ -945,6 +995,7 @@
           conversationHistory = data.messages;
           chatContainer.innerHTML = '';
           conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+          saveLocalChat(data.id, data.title, data.messages);
         }
       } catch (err) {
         console.warn('Chat load warning:', err);
@@ -962,73 +1013,82 @@
       drawerOverlay.style.display = isOpen ? 'none' : 'block';
     }
 
+    function renderHistoryItems(chatList) {
+      if (!chatList || chatList.length === 0) {
+        historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">No saved conversations yet. 💬</p>';
+        return;
+      }
+
+      historyList.innerHTML = '';
+      chatList.forEach(chat => {
+        const item = document.createElement('div');
+        item.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'history-title';
+        titleSpan.textContent = chat.title || 'Untitled Conversation';
+        titleSpan.onclick = () => selectChat(chat.id);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'history-delete-btn';
+        delBtn.innerHTML = '🗑️';
+        delBtn.title = 'Delete Chat';
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteChat(chat.id);
+        };
+
+        item.appendChild(titleSpan);
+        item.appendChild(delBtn);
+        historyList.appendChild(item);
+      });
+    }
+
     async function fetchChatHistory() {
-      if (!supabase) {
-        historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">Supabase not connected. 🔌</p>';
-        return;
-      }
+      // 1. Immediately render local chats so it never stays stuck
+      const localList = getLocalChats();
+      renderHistoryItems(localList);
 
-      if (!currentUser) {
-        const { data: userData } = await supabase.auth.getUser();
-        currentUser = userData?.user || null;
-      }
+      if (!supabase) return;
 
-      if (!currentUser) {
-        historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">Pwease sign in to view history. 🔐</p>';
-        return;
-      }
-
-      historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">Loading conversations... ⏳</p>';
-
+      // 2. Fetch from cloud with a strict 3-second timeout race
       try {
-        const { data, error } = await supabase
+        if (!currentUser) {
+          const { data: userData } = await supabase.auth.getUser();
+          currentUser = userData?.user || null;
+        }
+
+        if (!currentUser) return;
+
+        const cloudQueryPromise = supabase
           .from('chats')
           .select('id, title, updated_at')
           .eq('user_id', currentUser.id)
           .order('updated_at', { ascending: false });
 
-        if (error) {
-          console.error('Fetch history error:', error);
-          historyList.innerHTML = `<p style="color: var(--danger-red); font-size: 0.82rem; text-align: center; margin-top: 20px;">Error: ${error.message} ⚠️</p>`;
-          return;
+        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timeout: true }), 3000));
+        const res = await Promise.race([cloudQueryPromise, timeoutPromise]);
+
+        if (res && !res.timeout && !res.error && Array.isArray(res.data) && res.data.length > 0) {
+          renderHistoryItems(res.data);
         }
-
-        if (!data || data.length === 0) {
-          historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">No saved conversations yet. 💬</p>';
-          return;
-        }
-
-        historyList.innerHTML = '';
-        data.forEach(chat => {
-          const item = document.createElement('div');
-          item.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
-          
-          const titleSpan = document.createElement('span');
-          titleSpan.className = 'history-title';
-          titleSpan.textContent = chat.title || 'Untitled Conversation';
-          titleSpan.onclick = () => selectChat(chat.id);
-
-          const delBtn = document.createElement('button');
-          delBtn.className = 'history-delete-btn';
-          delBtn.innerHTML = '🗑️';
-          delBtn.title = 'Delete Chat';
-          delBtn.onclick = (e) => {
-            e.stopPropagation();
-            deleteChat(chat.id);
-          };
-
-          item.appendChild(titleSpan);
-          item.appendChild(delBtn);
-          historyList.appendChild(item);
-        });
-
       } catch (err) {
-        console.error('Fetch history catch:', err);
-        historyList.innerHTML = '<p style="color: var(--danger-red); font-size: 0.85rem; text-align: center; margin-top: 20px;">Failed to load history.</p>';
+        console.warn('Cloud history fetch bypassed, showing local history:', err);
       }
     }
 
     async function selectChat(chatId) {
+      // Check local cache first
+      const local = getLocalChats().find(c => c.id === chatId);
+      if (local && Array.isArray(local.messages)) {
+        currentChatId = local.id;
+        conversationHistory = local.messages;
+        chatContainer.innerHTML = '';
+        conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+        toggleHistoryDrawer();
+        return;
+      }
+
       if (!currentUser || !supabase) return;
 
       try {
@@ -1043,6 +1103,7 @@
           conversationHistory = data.messages;
           chatContainer.innerHTML = '';
           conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+          saveLocalChat(data.id, data.title, data.messages);
           toggleHistoryDrawer();
         }
       } catch (err) {
@@ -1053,22 +1114,20 @@
     async function deleteChat(chatId) {
       if (!confirm('Are you sure you want to delete this chat forever? 🗑️')) return;
 
-      try {
-        const { error } = await supabase
-          .from('chats')
-          .delete()
-          .eq('id', chatId);
+      deleteLocalChat(chatId);
 
-        if (error) {
-          alert('Delete failed: ' + error.message);
-        } else {
-          if (currentChatId === chatId) {
-            startNewChat();
-          }
-          await fetchChatHistory();
+      if (currentChatId === chatId) {
+        startNewChat();
+      }
+
+      renderHistoryItems(getLocalChats());
+
+      if (supabase && currentUser) {
+        try {
+          await supabase.from('chats').delete().eq('id', chatId);
+        } catch (e) {
+          console.warn('Cloud delete notice:', e);
         }
-      } catch (err) {
-        alert('Error connecting to database to delete chat.');
       }
     }
 
