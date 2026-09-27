@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>TECHSAVVY AI ⚡</title>
   
-  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
-  
-  <!-- Markdown rendering support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
@@ -305,7 +302,6 @@
       font-size: 0.8rem;
     }
 
-    /* RESPONSIVE BREAKPOINTS */
     @media (min-width: 768px) and (max-width: 1024px) {
       #chat-container { max-width: 92%; padding: 20px 12px; }
       .chat-bubble { max-width: 85%; }
@@ -349,7 +345,6 @@
     </div>
 
     <div class="nav-controls">
-      <!-- Updated active model options eliminating broken endpoints -->
       <select id="model-select" title="Select AI Model">
         <option value="openrouter/free" selected>Auto Free Router 🔀 (Recommended)</option>
         <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (Free)</option>
@@ -451,7 +446,7 @@
         <button type="button" style="color: var(--danger-red); border-color: rgba(239,68,68,0.3);" onclick="handleSignOut()">Log Out</button>
         <div style="display: flex; gap: 8px;">
           <button type="button" onclick="toggleProfileModal()">Cancel</button>
-          <button type="button" class="btn-primary" onclick="saveUsername()">Save Name</button>
+          <button type="button" id="save-username-btn" class="btn-primary" onclick="saveUsername()">Save Name</button>
         </div>
       </div>
     </div>
@@ -488,6 +483,16 @@
     const modelSelect = document.getElementById('model-select');
     const authBtn = document.getElementById('auth-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
+    const saveUsernameBtn = document.getElementById('save-username-btn');
+
+    // Instant local cache restoration so UI never flashes "Sign In"
+    const cachedUsername = localStorage.getItem('techsavvy_cached_username');
+    if (cachedUsername) {
+      authBtn.textContent = `@${cachedUsername}`;
+      authBtn.classList.remove('btn-primary');
+      authBtn.onclick = toggleProfileModal;
+      newChatBtn.style.display = 'inline-block';
+    }
 
     async function applyUserSession(session) {
       currentUser = session?.user || null;
@@ -498,6 +503,7 @@
         await fetchUserProfile(currentUser.id);
         await loadLatestChat();
       } else {
+        localStorage.removeItem('techsavvy_cached_username');
         authBtn.textContent = 'Sign In';
         authBtn.classList.add('btn-primary');
         authBtn.onclick = toggleAuthModal;
@@ -507,10 +513,14 @@
     }
 
     if (supabase) {
+      // 1. Check existing session on load
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) applyUserSession(session);
+        if (session) {
+          applyUserSession(session);
+        }
       });
 
+      // 2. React to auth state changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         await applyUserSession(session);
       });
@@ -550,6 +560,7 @@
 
     async function handleSignOut() {
       if (confirm('Log out of TECHSAVVY AI?')) {
+        localStorage.removeItem('techsavvy_cached_username');
         await supabase.auth.signOut();
         toggleProfileModal();
         startNewChat();
@@ -557,17 +568,23 @@
     }
 
     async function fetchUserProfile(userId) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', userId)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', userId)
+          .maybeSingle();
 
-      if (!error && data?.username) {
-        authBtn.textContent = `@${data.username}`;
-      } else {
-        const fallback = currentUser.email ? currentUser.email.split('@')[0] : 'User';
-        authBtn.textContent = fallback;
+        if (!error && data?.username) {
+          authBtn.textContent = `@${data.username}`;
+          localStorage.setItem('techsavvy_cached_username', data.username);
+        } else {
+          const fallback = currentUser.email ? currentUser.email.split('@')[0] : 'User';
+          authBtn.textContent = fallback;
+          localStorage.setItem('techsavvy_cached_username', fallback);
+        }
+      } catch (err) {
+        console.warn('Profile fetch warning:', err);
       }
     }
 
@@ -575,15 +592,30 @@
       const newName = document.getElementById('username-input').value.trim();
       if (!newName || !currentUser) return;
 
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({ id: currentUser.id, username: newName, updated_at: new Date() });
+      saveUsernameBtn.disabled = true;
+      saveUsernameBtn.textContent = 'Saving... ⏳';
 
-      if (error) {
-        alert(error.message);
-      } else {
-        authBtn.textContent = `@${newName}`;
-        toggleProfileModal();
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({ 
+            id: currentUser.id, 
+            username: newName, 
+            updated_at: new Date().toISOString() 
+          });
+
+        if (error) {
+          alert('Save failed: ' + error.message);
+        } else {
+          authBtn.textContent = `@${newName}`;
+          localStorage.setItem('techsavvy_cached_username', newName);
+          toggleProfileModal();
+        }
+      } catch (err) {
+        alert('Could not reach profile database.');
+      } finally {
+        saveUsernameBtn.disabled = false;
+        saveUsernameBtn.textContent = 'Save Name';
       }
     }
 
@@ -592,46 +624,54 @@
 
       const title = conversationHistory[0]?.content?.slice(0, 30) || 'New Conversation';
 
-      if (!currentChatId) {
-        const { data, error } = await supabase
-          .from('chats')
-          .insert({
-            user_id: currentUser.id,
-            title: title,
-            messages: conversationHistory,
-            updated_at: new Date()
-          })
-          .select('id')
-          .single();
+      try {
+        if (!currentChatId) {
+          const { data, error } = await supabase
+            .from('chats')
+            .insert({
+              user_id: currentUser.id,
+              title: title,
+              messages: conversationHistory,
+              updated_at: new Date().toISOString()
+            })
+            .select('id')
+            .maybeSingle();
 
-        if (!error && data) currentChatId = data.id;
-      } else {
-        await supabase
-          .from('chats')
-          .update({
-            messages: conversationHistory,
-            updated_at: new Date()
-          })
-          .eq('id', currentChatId);
+          if (!error && data) currentChatId = data.id;
+        } else {
+          await supabase
+            .from('chats')
+            .update({
+              messages: conversationHistory,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', currentChatId);
+        }
+      } catch (err) {
+        console.warn('Cloud chat sync error:', err);
       }
     }
 
     async function loadLatestChat() {
       if (!currentUser || !supabase) return;
 
-      const { data, error } = await supabase
-        .from('chats')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('chats')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (!error && data && Array.isArray(data.messages) && data.messages.length > 0) {
-        currentChatId = data.id;
-        conversationHistory = data.messages;
-        chatContainer.innerHTML = '';
-        conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+        if (!error && data && Array.isArray(data.messages) && data.messages.length > 0) {
+          currentChatId = data.id;
+          conversationHistory = data.messages;
+          chatContainer.innerHTML = '';
+          conversationHistory.forEach(msg => appendBubble(msg.role === 'user' ? 'user' : 'bot', msg.content));
+        }
+      } catch (err) {
+        console.warn('Chat load warning:', err);
       }
     }
 
@@ -669,7 +709,8 @@
       const m = document.getElementById('profile-modal');
       m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
       if (m.style.display === 'flex' && currentUser) {
-        document.getElementById('username-input').value = authBtn.textContent.replace('@', '');
+        const currentName = authBtn.textContent.replace('@', '');
+        document.getElementById('username-input').value = currentName === 'Sign In' ? '' : currentName;
       }
     }
 
