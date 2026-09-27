@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>TECHSAVVY AI ⚡</title>
   
+  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
+  
+  <!-- Markdown rendering support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
@@ -302,7 +305,7 @@
       font-size: 0.8rem;
     }
 
-    /* RESPONSIVE LAYOUTS */
+    /* RESPONSIVE BREAKPOINTS */
     @media (min-width: 768px) and (max-width: 1024px) {
       #chat-container { max-width: 92%; padding: 20px 12px; }
       .chat-bubble { max-width: 85%; }
@@ -453,13 +456,21 @@
   </div>
 
   <script>
+    // 1. SUPABASE CLIENT INITIALIZATION (FORCED LOCALSTORAGE PERSISTENCE)
     const SUPABASE_URL = 'https://ujgxwyzdvdhmtinpjgxc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_piPDZCz5m64H7LioYcv0dw_V-q_H0Bu';
     
     let supabase = null;
     try {
       if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage
+          }
+        });
       }
     } catch (err) {
       console.warn('Supabase initialization warning:', err);
@@ -477,7 +488,38 @@
     const authBtn = document.getElementById('auth-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
-    // AUTH HANDLING
+    // 2. AUTH & USER HANDLING
+    async function applyUserSession(session) {
+      currentUser = session?.user || null;
+      if (currentUser) {
+        authBtn.classList.remove('btn-primary');
+        authBtn.onclick = toggleProfileModal;
+        if (newChatBtn) newChatBtn.style.display = 'inline-block';
+        await fetchUserProfile(currentUser.id);
+        await loadLatestChat();
+      } else {
+        authBtn.textContent = 'Sign In';
+        authBtn.classList.add('btn-primary');
+        authBtn.onclick = toggleAuthModal;
+        if (newChatBtn) newChatBtn.style.display = 'none';
+        currentChatId = null;
+      }
+    }
+
+    if (supabase) {
+      // Restore session on reload immediately
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          applyUserSession(session);
+        }
+      });
+
+      // Keep listening for auth state changes
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        await applyUserSession(session);
+      });
+    }
+
     async function loginWithProvider(provider) {
       if (!supabase) return alert('Supabase client error.');
       const { error } = await supabase.auth.signInWithOAuth({
@@ -518,7 +560,7 @@
       }
     }
 
-    // PROFILE / USERNAME LOGIC
+    // 3. PROFILE / USERNAME LOGIC
     async function fetchUserProfile(userId) {
       const { data, error } = await supabase
         .from('profiles')
@@ -550,7 +592,7 @@
       }
     }
 
-    // CHAT PERSISTENCE IN SUPABASE
+    // 4. CHAT PERSISTENCE IN SUPABASE
     async function saveChatToCloud() {
       if (!currentUser || !supabase || conversationHistory.length === 0) return;
 
@@ -610,26 +652,7 @@
       `;
     }
 
-    if (supabase) {
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        currentUser = session?.user || null;
-        if (currentUser) {
-          authBtn.classList.remove('btn-primary');
-          authBtn.onclick = toggleProfileModal;
-          newChatBtn.style.display = 'inline-block';
-          await fetchUserProfile(currentUser.id);
-          await loadLatestChat();
-        } else {
-          authBtn.textContent = 'Sign In';
-          authBtn.classList.add('btn-primary');
-          authBtn.onclick = toggleAuthModal;
-          newChatBtn.style.display = 'none';
-          currentChatId = null;
-        }
-      });
-    }
-
-    // MODAL HANDLERS
+    // 5. MODAL HANDLERS
     function toggleSettingsModal() {
       const m = document.getElementById('settings-modal');
       m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
@@ -657,7 +680,7 @@
       }
     }
 
-    // CHAT DISPLAY & SEND
+    // 6. CHAT DISPLAY & SEND
     function appendBubble(role, text, isError = false) {
       const splash = document.getElementById('welcome-splash');
       if (splash) splash.remove();
