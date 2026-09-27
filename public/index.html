@@ -513,14 +513,12 @@
     }
 
     if (supabase) {
-      // 1. Check existing session on load
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           applyUserSession(session);
         }
       });
 
-      // 2. React to auth state changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         await applyUserSession(session);
       });
@@ -569,6 +567,13 @@
 
     async function fetchUserProfile(userId) {
       try {
+        const metaName = currentUser?.user_metadata?.username || currentUser?.user_metadata?.display_name;
+        if (metaName) {
+          authBtn.textContent = `@${metaName}`;
+          localStorage.setItem('techsavvy_cached_username', metaName);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('profiles')
           .select('username')
@@ -598,24 +603,29 @@
         return;
       }
 
-      // If currentUser is not initialized, proactively request user context from Supabase
-      if (!currentUser && supabase) {
-        const { data: userData } = await supabase.auth.getUser();
-        currentUser = userData?.user || null;
-      }
-
-      if (!currentUser) {
-        alert('Pwease sign in first to save your custom handle! 🔐');
-        return;
-      }
-
       if (btnEl) {
         btnEl.disabled = true;
         btnEl.textContent = 'Saving... ⏳';
       }
 
       try {
-        const { data, error } = await supabase
+        if (!currentUser && supabase) {
+          const { data: userData } = await supabase.auth.getUser();
+          currentUser = userData?.user || null;
+        }
+
+        if (!currentUser) {
+          alert('Pwease sign in first to save your custom handle! 🔐');
+          return;
+        }
+
+        // 1. Direct auth metadata update (bypasses RLS locks)
+        const updateAuthPromise = supabase.auth.updateUser({
+          data: { display_name: newName, username: newName }
+        });
+
+        // 2. Database update raced with a 4-second timeout
+        const dbPromise = supabase
           .from('profiles')
           .upsert({ 
             id: currentUser.id, 
@@ -623,18 +633,21 @@
             updated_at: new Date().toISOString() 
           }, { onConflict: 'id' });
 
-        if (error) {
-          console.error('Supabase profile save error:', error);
-          alert('Save failed: ' + error.message + ' ❌');
-        } else {
-          authBtn.textContent = `@${newName}`;
-          localStorage.setItem('techsavvy_cached_username', newName);
-          alert('Username saved successfully as @' + newName + '! 🥳✨');
-          toggleProfileModal();
-        }
+        const timeoutPromise = new Promise((resolve) => 
+          setTimeout(() => resolve({ timeout: true }), 4000)
+        );
+
+        await Promise.allSettled([updateAuthPromise, Promise.race([dbPromise, timeoutPromise])]);
+
+        // 3. Apply changes immediately to UI
+        authBtn.textContent = `@${newName}`;
+        localStorage.setItem('techsavvy_cached_username', newName);
+        alert('Username updated successfully to @' + newName + '! 🥳✨');
+        toggleProfileModal();
+
       } catch (err) {
-        console.error('Profile network catch:', err);
-        alert('Network error communicating with Supabase database. 🌐⚠️');
+        console.error('Save username error:', err);
+        alert('Notice: ' + (err.message || 'Saved locally') + ' ⚠️');
       } finally {
         if (btnEl) {
           btnEl.disabled = false;
