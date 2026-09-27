@@ -583,7 +583,7 @@
           <strong>⚡ ADB Debloat Tricks</strong>
           <span>Clean up carrier bloatware and speed up performance.</span>
         </div>
-        <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone that is stuck in a bootloop?')">
+        <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone thet is stuck in a bootloop?')">
           <strong>🛠️ Bootloop Recovery</strong>
           <span>Troubleshoot and rescue soft-bricked hardware.</span>
         </div>
@@ -981,26 +981,19 @@
       historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">Loading conversations... ⏳</p>';
 
       try {
-        const queryPromise = supabase
+        const { data, error } = await supabase
           .from('chats')
           .select('id, title, updated_at')
           .eq('user_id', currentUser.id)
           .order('updated_at', { ascending: false });
 
-        const timeoutPromise = new Promise((resolve) => 
-          setTimeout(() => resolve({ timeout: true }), 4000)
-        );
-
-        const result = await Promise.race([queryPromise, timeoutPromise]);
-
-        if (result?.timeout) {
-          historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">Could not reach database. Check SQL permissions. ⚠️</p>';
+        if (error) {
+          console.error('Fetch history error:', error);
+          historyList.innerHTML = `<p style="color: var(--danger-red); font-size: 0.82rem; text-align: center; margin-top: 20px;">Error: ${error.message} ⚠️</p>`;
           return;
         }
 
-        const { data, error } = result;
-
-        if (error || !data || data.length === 0) {
+        if (!data || data.length === 0) {
           historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 20px;">No saved conversations yet. 💬</p>';
           return;
         }
@@ -1030,7 +1023,7 @@
         });
 
       } catch (err) {
-        console.error('Fetch history error:', err);
+        console.error('Fetch history catch:', err);
         historyList.innerHTML = '<p style="color: var(--danger-red); font-size: 0.85rem; text-align: center; margin-top: 20px;">Failed to load history.</p>';
       }
     }
