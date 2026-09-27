@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
       activePrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
     }
 
-    // Default to Llama 3.2 3B Free for rock-solid stability
+    // Default to Llama 3.2 3B Free for text or Gemma 2 9B for vision
     const selectedModel = model || 'meta-llama/llama-3.2-3b-instruct:free';
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -83,11 +83,11 @@ module.exports = async (req, res) => {
 
     let reply = data.choices?.[0]?.message?.content || '';
 
-    // Strip unwanted moderation prefixes that some free router nodes inject
+    // Strip upstream moderation prefixes
     reply = reply.replace(/^User Safety:\s*safe\s*/i, '').trim();
 
     if (!reply) {
-      reply = "Hey! Thet upstream model returned an empty reply. Pwease try picking another model from the dropdown or send the prompt again! 🤖⚡";
+      reply = "Hey! Thet model returned an empty reply. Pwease try picking another model or check the uploaded image! 🤖⚡";
     }
 
     return res.status(200).json({ reply });
