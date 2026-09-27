@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>TECHSAVVY AI ⚡</title>
+  <link rel="icon" type="image/png" href="icon.png" />
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -44,24 +45,35 @@
     header {
       background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
-      padding: 10px 18px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;
       z-index: 10;
       flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+    header::-webkit-scrollbar { display: none; }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 700;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       color: var(--accent-cyan);
       user-select: none;
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .brand img {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      object-fit: cover;
     }
 
     .brand span { color: #fff; }
@@ -69,20 +81,21 @@
     .nav-controls {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     select, button {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.2s ease;
       outline: none;
+      white-space: nowrap;
     }
 
     select:focus, button:focus { border-color: var(--accent-cyan); }
@@ -99,7 +112,7 @@
     .discord-btn {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       border-color: rgba(88, 101, 242, 0.4);
       color: #fff;
       text-decoration: none;
@@ -113,10 +126,10 @@
     #chat-container {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 16px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 14px;
       max-width: 900px;
       width: 100%;
       margin: 0 auto;
@@ -128,31 +141,40 @@
       text-align: center;
       max-width: 580px;
       width: 100%;
-      padding: 24px 20px;
+      padding: 20px 16px;
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
 
     #welcome-splash h2 {
       color: var(--accent-cyan);
-      font-size: 1.35rem;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    #welcome-splash h2 img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
     }
 
     #welcome-splash p {
       color: var(--text-muted);
-      font-size: 0.92rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.45;
     }
 
     .starter-chips {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px;
-      margin-top: 4px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
       text-align: left;
     }
 
@@ -160,25 +182,25 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 12px 14px;
+      padding: 10px 12px;
       border-radius: 10px;
       cursor: pointer;
-      font-size: 0.86rem;
+      font-size: 0.82rem;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .prompt-chip strong {
       color: var(--accent-cyan);
-      font-size: 0.88rem;
+      font-size: 0.84rem;
     }
 
     .prompt-chip span {
       color: var(--text-muted);
-      font-size: 0.78rem;
-      line-height: 1.3;
+      font-size: 0.74rem;
+      line-height: 1.25;
     }
 
     .prompt-chip:hover {
@@ -191,13 +213,13 @@
       background: rgba(88, 101, 242, 0.12);
       border: 1px dashed var(--discord-purple);
       border-radius: 10px;
-      padding: 11px 16px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       color: var(--text-main);
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       text-decoration: none;
       transition: all 0.2s ease;
     }
@@ -205,17 +227,16 @@
     .discord-banner:hover {
       background: rgba(88, 101, 242, 0.22);
       border-style: solid;
-      transform: translateY(-1px);
     }
 
     .chat-bubble {
       display: flex;
       flex-direction: column;
-      max-width: 80%;
-      padding: 14px 18px;
+      max-width: 85%;
+      padding: 12px 16px;
       border-radius: 12px;
-      line-height: 1.55;
-      font-size: 0.95rem;
+      line-height: 1.5;
+      font-size: 0.92rem;
       word-break: break-word;
     }
 
@@ -240,26 +261,18 @@
       color: #fca5a5;
     }
 
-    .chat-bubble pre {
-      background: #090b10;
-      padding: 12px;
+    .chat-bubble img {
+      max-width: 100%;
+      max-height: 250px;
       border-radius: 8px;
-      overflow-x: auto;
-      margin: 10px 0;
-    }
-
-    .chat-bubble code {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 2px 5px;
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 0.88rem;
+      margin-bottom: 8px;
+      object-fit: contain;
     }
 
     .typing-indicator {
       display: flex;
       gap: 5px;
-      padding: 12px 18px;
+      padding: 10px 14px;
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
@@ -268,8 +281,8 @@
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: var(--accent-cyan);
       border-radius: 50%;
       animation: pulse 1.4s infinite ease-in-out;
@@ -286,76 +299,75 @@
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
-      padding: 14px 18px;
+      padding: 8px 12px;
       flex-shrink: 0;
+      position: relative;
     }
 
     .input-dock {
       max-width: 900px;
       margin: 0 auto;
       display: flex;
-      gap: 10px;
+      align-items: center;
+      gap: 8px;
     }
 
-    .input-dock input {
-      flex: 1;
+    .attach-btn {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 12px 16px;
+      color: var(--text-muted);
+      padding: 10px 12px;
       border-radius: 10px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    .input-dock input:focus { border-color: var(--accent-cyan); }
-
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      flex-shrink: 0;
     }
 
-    .modal-box {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      width: 100%;
-      max-width: 440px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+    .attach-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
 
-    .modal-box h3 {
-      color: var(--accent-cyan);
-      font-size: 1.2rem;
-    }
-
-    .modal-box p {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      line-height: 1.4;
-    }
-
-    .modal-box textarea,
-    .modal-box input {
-      width: 100%;
+    .input-dock input[type="text"] {
+      flex: 1;
+      min-width: 0;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
       padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
       outline: none;
+    }
+
+    .input-dock input[type="text"]:focus { border-color: var(--accent-cyan); }
+
+    .image-preview-dock {
+      max-width: 900px;
+      margin: 0 auto 8px auto;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .image-preview-dock img {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .image-preview-dock .remove-img-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger-red);
+      font-size: 1rem;
+      cursor: pointer;
+      margin-left: auto;
     }
 
     /* HISTORY DRAWER */
@@ -364,7 +376,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 320px;
+      width: 290px;
       height: 100%;
       background: var(--panel-bg);
       border-right: 1px solid var(--border-color);
@@ -375,7 +387,7 @@
     }
 
     .history-header {
-      padding: 16px;
+      padding: 14px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
@@ -383,44 +395,37 @@
     }
 
     .history-header h3 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--accent-cyan);
     }
 
     .history-list {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .history-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 8px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       cursor: pointer;
       transition: all 0.2s ease;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .history-item:hover {
-      border-color: var(--accent-cyan);
-      background: #232a3d;
-    }
-
-    .history-item.active {
-      border-color: var(--accent-blue);
-      background: rgba(37, 99, 235, 0.2);
-    }
+    .history-item:hover { border-color: var(--accent-cyan); background: #232a3d; }
+    .history-item.active { border-color: var(--accent-blue); background: rgba(37, 99, 235, 0.2); }
 
     .history-title {
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       color: var(--text-main);
       white-space: nowrap;
       overflow: hidden;
@@ -432,17 +437,13 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 4px 6px;
+      padding: 2px 4px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.95rem;
-      line-height: 1;
+      font-size: 0.88rem;
     }
 
-    .history-delete-btn:hover {
-      color: var(--danger-red);
-      background: rgba(239, 68, 68, 0.15);
-    }
+    .history-delete-btn:hover { color: var(--danger-red); }
 
     .drawer-overlay {
       display: none;
@@ -453,6 +454,43 @@
       backdrop-filter: blur(2px);
     }
 
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .modal-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-box h3 { color: var(--accent-cyan); font-size: 1.15rem; }
+    .modal-box p { color: var(--text-muted); font-size: 0.84rem; line-height: 1.4; }
+    .modal-box textarea, .modal-box input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
     .oauth-btn {
       width: 100%;
       display: flex;
@@ -460,7 +498,7 @@
       justify-content: center;
       gap: 10px;
       font-weight: 600;
-      padding: 11px;
+      padding: 10px;
       border-radius: 8px;
     }
 
@@ -470,45 +508,24 @@
     .divider {
       text-align: center;
       position: relative;
-      margin: 6px 0;
+      margin: 4px 0;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
 
-    @media (min-width: 768px) and (max-width: 1024px) {
-      #chat-container { max-width: 92%; padding: 20px 12px; }
-      .chat-bubble { max-width: 85%; }
-      .input-dock { max-width: 92%; }
-    }
-
-    @media (max-width: 767px) {
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 10px 12px;
-        gap: 8px;
-      }
-      .brand { justify-content: center; font-size: 1.05rem; }
-      .nav-controls {
-        display: grid;
-        grid-template-columns: 1fr auto auto auto auto;
-        gap: 6px;
-        width: 100%;
-      }
-      #model-select { font-size: 0.82rem; padding: 6px 8px; }
-      .nav-controls button, .nav-controls a button { padding: 6px 10px; font-size: 0.82rem; }
-      #chat-container { padding: 14px 10px; gap: 12px; }
-      .chat-bubble { max-width: 92%; padding: 10px 14px; font-size: 0.9rem; }
-      footer { padding: 10px 12px; }
-      #history-drawer { width: 85%; }
+    /* LOW DPI & MOBILE ULTRA-COMPACT ADAPTATION */
+    @media (max-width: 600px), (max-height: 650px) {
+      header { padding: 6px 10px; }
+      .brand { font-size: 0.95rem; }
+      .brand img { width: 22px; height: 22px; }
+      select, button { padding: 5px 8px; font-size: 0.78rem; }
+      #model-select { max-width: 125px; }
+      #chat-container { padding: 10px 8px; gap: 10px; }
       .starter-chips { grid-template-columns: 1fr; }
-      .modal-backdrop { align-items: flex-end; padding: 0; }
-      .modal-box {
-        max-width: 100%;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        padding: 20px 16px 28px 16px;
-      }
+      footer { padding: 6px 8px; }
+      .input-dock input[type="text"] { padding: 8px 10px; font-size: 0.88rem; }
+      .attach-btn, #send-btn { padding: 8px 10px; font-size: 0.82rem; }
+      #history-drawer { width: 80%; }
     }
   </style>
 </head>
@@ -530,36 +547,36 @@
 
   <header>
     <div class="brand">
+      <img src="icon.png" alt="tsai icon" onerror="this.style.display='none'" />
       ⚡ TECHSAVVY <span>AI</span>
     </div>
 
     <div class="nav-controls">
       <select id="model-select" title="Select AI Model">
-        <option value="meta-llama/llama-3.2-3b-instruct:free" selected>Llama 3.2 3B (Free) ⚡</option>
-        <option value="google/gemma-2-9b-it:free">Gemma 2 9B (Free)</option>
-        <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B (Free)</option>
-        <option value="mistralai/mistral-7b-instruct-v0.3:free">Mistral 7B v0.3 (Free)</option>
+        <option value="meta-llama/llama-3.2-3b-instruct:free" selected>Llama 3.2 3B ⚡</option>
+        <option value="google/gemma-2-9b-it:free">Gemma 2 9B (Vision) 👁️</option>
+        <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B</option>
+        <option value="mistralai/mistral-7b-instruct-v0.3:free">Mistral 7B v0.3</option>
         <option value="openrouter/free">Auto Free Router 🔀</option>
       </select>
 
       <button type="button" id="history-btn" onclick="openHistoryDrawer()" title="View Saved Chats" style="display: none;">
-        📜 History
+        📜
       </button>
 
       <button type="button" onclick="toggleSettingsModal()" title="Custom System Instructions">
-        ⚙️ Prompt
+        ⚙️
       </button>
 
       <button type="button" id="new-chat-btn" onclick="startNewChat()" title="Start New Chat" style="display: none;">
-        ➕ New
+        ➕
       </button>
 
       <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
         <button type="button" class="discord-btn" title="Join Discord Community">
-          <svg width="15" height="15" viewBox="0 0 127.14 96.36" fill="#5865F2">
+          <svg width="14" height="14" viewBox="0 0 127.14 96.36" fill="#5865F2">
             <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
           </svg>
-          Discord
         </button>
       </a>
 
@@ -571,17 +588,20 @@
 
   <div id="chat-container">
     <div id="welcome-splash">
-      <h2>Welcome to TECHSAVVY AI ⚡</h2>
+      <h2>
+        <img src="icon.png" alt="tsai icon" onerror="this.style.display='none'" />
+        Welcome to TECHSAVVY AI ⚡
+      </h2>
       <p>Your AI wingman for Android modding, custom ROMs, legacy gear, and coding projects!</p>
       
       <div class="starter-chips">
         <div class="prompt-chip" onclick="triggerStarterPrompt('How do I safely unlock the bootloader on an older Android device?')">
           <strong>📱 Bootloader & ROMs</strong>
-          <span>How to safely unlock bootloaders & flash custom recoveries.</span>
+          <span>Unlock bootloaders & flash custom recoveries.</span>
         </div>
         <div class="prompt-chip" onclick="triggerStarterPrompt('What are the best ADB commands to debloat an Android phone without root?')">
           <strong>⚡ ADB Debloat Tricks</strong>
-          <span>Clean up carrier bloatware and speed up performance.</span>
+          <span>Clean up carrier bloatware and speed up phones.</span>
         </div>
         <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone thet is stuck in a bootloop?')">
           <strong>🛠️ Bootloop Recovery</strong>
@@ -589,27 +609,40 @@
         </div>
         <div class="prompt-chip" onclick="triggerStarterPrompt('How can I optimize and run classic Minecraft PE on older Android versions?')">
           <strong>🎮 Retro Minecraft PE</strong>
-          <span>Performance configs and APK tips for vintage versions.</span>
+          <span>Performance configs and APK tips for vintage builds.</span>
         </div>
       </div>
 
       <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" class="discord-banner">
-        <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
+        <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="#5865F2">
           <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
         </svg>
-        <span>Need modding advice or tech support? <strong>Join the Official Discord!</strong></span>
+        <span>Need modding advice or tech support? <strong>Join Discord!</strong></span>
       </a>
     </div>
   </div>
 
   <footer>
+    <div id="image-preview-dock" class="image-preview-dock">
+      <img id="image-preview-img" src="" alt="attachment preview" />
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Image attached (Gemma 2 Vision active)</span>
+      <button type="button" class="remove-img-btn" onclick="clearAttachedImage()" title="Remove image">✕</button>
+    </div>
+
     <form class="input-dock" onsubmit="handleSend(event)">
+      <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageSelection(event)" />
+      
+      <button type="button" class="attach-btn" onclick="document.getElementById('image-file-input').click()" title="Attach image / screenshot">
+        📎
+      </button>
+
       <input 
         type="text" 
         id="user-input" 
-        placeholder="Ask anything about tech, custom ROMs, or coding..." 
+        placeholder="Ask anything or attach a photo..." 
         autocomplete="off" 
       />
+
       <button type="submit" id="send-btn" class="btn-primary">
         Send 🚀
       </button>
@@ -700,6 +733,7 @@
     let customInstructions = localStorage.getItem('techsavvy_custom_instructions') || '';
     let currentUser = null;
     let currentChatId = null;
+    let currentAttachedBase64 = null;
 
     const chatContainer = document.getElementById('chat-container');
     const userInput = document.getElementById('user-input');
@@ -712,8 +746,9 @@
     const historyDrawer = document.getElementById('history-drawer');
     const drawerOverlay = document.getElementById('drawer-overlay');
     const historyList = document.getElementById('history-list');
+    const imagePreviewDock = document.getElementById('image-preview-dock');
+    const imagePreviewImg = document.getElementById('image-preview-img');
 
-    // LocalStorage helper for resilient instant history
     function getLocalChats() {
       try {
         return JSON.parse(localStorage.getItem('techsavvy_saved_chats') || '[]');
@@ -747,7 +782,6 @@
       }
     }
 
-    // Restore cached username
     const cachedUsername = localStorage.getItem('techsavvy_cached_username');
     if (cachedUsername) {
       authBtn.textContent = `@${cachedUsername}`;
@@ -916,15 +950,51 @@
       }
     }
 
+    // IMAGE HANDLING LOGIC
+    function handleImageSelection(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Pwease select a valid image file (PNG, JPG, WEBP).');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        currentAttachedBase64 = evt.target.result;
+        imagePreviewImg.src = currentAttachedBase64;
+        imagePreviewDock.style.display = 'flex';
+        
+        // Auto-switch to vision-capable model
+        if (modelSelect.value.includes('3b')) {
+          modelSelect.value = 'google/gemma-2-9b-it:free';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearAttachedImage() {
+      currentAttachedBase64 = null;
+      document.getElementById('image-file-input').value = '';
+      imagePreviewDock.style.display = 'none';
+      imagePreviewImg.src = '';
+    }
+
     // CHAT MANAGEMENT
     async function saveChatToCloud() {
       if (conversationHistory.length === 0) return;
 
-      const title = conversationHistory[0]?.content?.slice(0, 32) || 'New Conversation';
+      let firstContent = conversationHistory[0]?.content;
+      if (Array.isArray(firstContent)) {
+        const textPart = firstContent.find(p => p.type === 'text');
+        firstContent = textPart ? textPart.text : 'Image Conversation';
+      }
+      const title = String(firstContent || 'New Conversation').slice(0, 32);
+
       const activeId = currentChatId || `local-${Date.now()}`;
       currentChatId = activeId;
 
-      // Always save to localStorage immediately
       saveLocalChat(activeId, title, conversationHistory);
 
       if (!supabase) return;
@@ -935,7 +1005,6 @@
       if (!currentUser) return;
 
       try {
-        // Check if activeId is a standard UUID before database insert
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(activeId);
 
         if (!isUUID) {
@@ -970,7 +1039,6 @@
     }
 
     async function loadLatestChat() {
-      // Check local cache first for instant response
       const localChats = getLocalChats();
       if (localChats.length > 0 && (!conversationHistory || conversationHistory.length === 0)) {
         currentChatId = localChats[0].id;
@@ -1045,13 +1113,11 @@
     }
 
     async function fetchChatHistory() {
-      // 1. Immediately render local chats so it never stays stuck
       const localList = getLocalChats();
       renderHistoryItems(localList);
 
       if (!supabase) return;
 
-      // 2. Fetch from cloud with a strict 3-second timeout race
       try {
         if (!currentUser) {
           const { data: userData } = await supabase.auth.getUser();
@@ -1078,7 +1144,6 @@
     }
 
     async function selectChat(chatId) {
-      // Check local cache first
       const local = getLocalChats().find(c => c.id === chatId);
       if (local && Array.isArray(local.messages)) {
         currentChatId = local.id;
@@ -1134,17 +1199,20 @@
     function renderWelcomeScreen() {
       return `
         <div id="welcome-splash">
-          <h2>Welcome to TECHSAVVY AI ⚡</h2>
+          <h2>
+            <img src="icon.png" alt="tsai icon" onerror="this.style.display='none'" />
+            Welcome to TECHSAVVY AI ⚡
+          </h2>
           <p>Your AI wingman for Android modding, custom ROMs, legacy gear, and coding projects!</p>
           
           <div class="starter-chips">
             <div class="prompt-chip" onclick="triggerStarterPrompt('How do I safely unlock the bootloader on an older Android device?')">
               <strong>📱 Bootloader & ROMs</strong>
-              <span>How to safely unlock bootloaders & flash custom recoveries.</span>
+              <span>Unlock bootloaders & flash custom recoveries.</span>
             </div>
             <div class="prompt-chip" onclick="triggerStarterPrompt('What are the best ADB commands to debloat an Android phone without root?')">
               <strong>⚡ ADB Debloat Tricks</strong>
-              <span>Clean up carrier bloatware and speed up performance.</span>
+              <span>Clean up carrier bloatware and speed up phones.</span>
             </div>
             <div class="prompt-chip" onclick="triggerStarterPrompt('How do I unbrick a phone thet is stuck in a bootloop?')">
               <strong>🛠️ Bootloop Recovery</strong>
@@ -1152,15 +1220,15 @@
             </div>
             <div class="prompt-chip" onclick="triggerStarterPrompt('How can I optimize and run classic Minecraft PE on older Android versions?')">
               <strong>🎮 Retro Minecraft PE</strong>
-              <span>Performance configs and APK tips for vintage versions.</span>
+              <span>Performance configs and APK tips for vintage builds.</span>
             </div>
           </div>
 
           <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" class="discord-banner">
-            <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#5865F2">
+            <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="#5865F2">
               <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-19.66-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
             </svg>
-            <span>Need modding advice or tech support? <strong>Join the Official Discord!</strong></span>
+            <span>Need modding advice or tech support? <strong>Join Discord!</strong></span>
           </a>
         </div>
       `;
@@ -1169,6 +1237,7 @@
     function startNewChat() {
       currentChatId = null;
       conversationHistory = [];
+      clearAttachedImage();
       chatContainer.innerHTML = renderWelcomeScreen();
     }
 
@@ -1205,17 +1274,31 @@
       }
     }
 
-    function appendBubble(role, text, isError = false) {
+    function appendBubble(role, content, isError = false) {
       const splash = document.getElementById('welcome-splash');
       if (splash) splash.remove();
 
       const bubble = document.createElement('div');
       bubble.className = `chat-bubble ${role} ${isError ? 'error' : ''}`;
 
-      if (role === 'bot' && typeof marked !== 'undefined') {
-        bubble.innerHTML = marked.parse(text);
+      if (Array.isArray(content)) {
+        content.forEach(part => {
+          if (part.type === 'image_url') {
+            const img = document.createElement('img');
+            img.src = part.image_url.url;
+            bubble.appendChild(img);
+          } else if (part.type === 'text') {
+            const p = document.createElement('div');
+            p.textContent = part.text;
+            bubble.appendChild(p);
+          }
+        });
       } else {
-        bubble.textContent = text;
+        if (role === 'bot' && typeof marked !== 'undefined') {
+          bubble.innerHTML = marked.parse(content);
+        } else {
+          bubble.textContent = content;
+        }
       }
 
       chatContainer.appendChild(bubble);
@@ -1239,12 +1322,25 @@
     async function handleSend(e) {
       e.preventDefault();
       const text = userInput.value.trim();
-      if (!text) return;
+      if (!text && !currentAttachedBase64) return;
 
-      appendBubble('user', text);
-      conversationHistory.push({ role: 'user', content: text });
+      let messagePayload;
+      if (currentAttachedBase64) {
+        messagePayload = [
+          { type: 'text', text: text || 'Please check this attached image.' },
+          { type: 'image_url', image_url: { url: currentAttachedBase64 } }
+        ];
+      } else {
+        messagePayload = text;
+      }
+
+      appendBubble('user', messagePayload);
+      conversationHistory.push({ role: 'user', content: messagePayload });
 
       userInput.value = '';
+      const sentImage = currentAttachedBase64;
+      clearAttachedImage();
+
       sendBtn.disabled = true;
       showTypingIndicator();
 
@@ -1254,7 +1350,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: conversationHistory,
-            model: modelSelect.value,
+            model: sentImage ? 'google/gemma-2-9b-it:free' : modelSelect.value,
             customInstructions: customInstructions
           })
         });
