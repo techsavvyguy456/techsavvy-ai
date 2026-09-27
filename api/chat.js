@@ -52,8 +52,8 @@ module.exports = async (req, res) => {
       activePrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
     }
 
-    // Default to the auto free router to prevent "No endpoints found" errors
-    const selectedModel = model || 'openrouter/free';
+    // Default to Llama 3.2 3B Free for rock-solid stability
+    const selectedModel = model || 'meta-llama/llama-3.2-3b-instruct:free';
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -81,7 +81,15 @@ module.exports = async (req, res) => {
       });
     }
 
-    const reply = data.choices?.[0]?.message?.content || 'No response returned from model.';
+    let reply = data.choices?.[0]?.message?.content || '';
+
+    // Strip unwanted moderation prefixes that some free router nodes inject
+    reply = reply.replace(/^User Safety:\s*safe\s*/i, '').trim();
+
+    if (!reply) {
+      reply = "Hey! Thet upstream model returned an empty reply. Pwease try picking another model from the dropdown or send the prompt again! 🤖⚡";
+    }
+
     return res.status(200).json({ reply });
 
   } catch (err) {
