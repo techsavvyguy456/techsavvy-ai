@@ -15,7 +15,6 @@ STRICT SECURITY RULES:
 `.trim();
 
 module.exports = async (req, res) => {
-  // 1. CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -33,7 +32,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // 2. Parse body safely
     let payload = req.body;
     if (typeof payload === 'string') {
       try {
@@ -49,15 +47,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required.' });
     }
 
-    // 3. Assemble system prompt
     let activePrompt = DEFAULT_INSTRUCTIONS;
     if (customInstructions && customInstructions.trim()) {
       activePrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
     }
 
-    const selectedModel = model || 'mistralai/mistral-7b-instruct:free';
+    // Default to the auto free router to prevent "No endpoints found" errors
+    const selectedModel = model || 'openrouter/free';
 
-    // 4. Call OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
