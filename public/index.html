@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>TECHSAVVY AI ⚡</title>
   
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase JS Client with publishable key support -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
   
-  <!-- Markdown & KaTeX rendering support -->
+  <!-- Markdown rendering support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
@@ -22,6 +22,7 @@
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --danger-red: #ef4444;
+      --header-height: 60px;
     }
 
     * {
@@ -29,18 +30,22 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
       height: 100vh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* TOP NAVBAR */
+    /* =========================================================
+       1. TOP NAVBAR / HEADER
+       ========================================================= */
     header {
       background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
@@ -50,6 +55,7 @@
       justify-content: space-between;
       gap: 12px;
       z-index: 10;
+      flex-shrink: 0;
     }
 
     .brand {
@@ -60,6 +66,7 @@
       font-size: 1.15rem;
       color: var(--accent-cyan);
       user-select: none;
+      white-space: nowrap;
     }
 
     .brand span {
@@ -103,7 +110,9 @@
       background: #1d4ed8;
     }
 
-    /* CHAT DISPLAY CONTAINER */
+    /* =========================================================
+       2. CHAT SCROLL AREA
+       ========================================================= */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -114,14 +123,14 @@
       max-width: 900px;
       width: 100%;
       margin: 0 auto;
+      scroll-behavior: smooth;
     }
 
-    /* WELCOME SPLASH CARD */
     #welcome-splash {
       margin: auto;
       text-align: center;
       max-width: 540px;
-      padding: 30px;
+      padding: 28px 20px;
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
@@ -130,20 +139,19 @@
     #welcome-splash h2 {
       color: var(--accent-cyan);
       margin-bottom: 8px;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
     }
 
     #welcome-splash p {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       line-height: 1.5;
     }
 
-    /* CHAT MESSAGE BUBBLES */
     .chat-bubble {
       display: flex;
       flex-direction: column;
-      max-width: 82%;
+      max-width: 80%;
       padding: 14px 18px;
       border-radius: 12px;
       line-height: 1.55;
@@ -188,7 +196,6 @@
       font-size: 0.88rem;
     }
 
-    /* TYPING INDICATOR */
     .typing-indicator {
       display: flex;
       gap: 5px;
@@ -216,11 +223,14 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
-    /* BOTTOM INPUT DOCK */
+    /* =========================================================
+       3. INPUT FOOTER
+       ========================================================= */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
       padding: 14px 18px;
+      flex-shrink: 0;
     }
 
     .input-dock {
@@ -245,13 +255,15 @@
       border-color: var(--accent-cyan);
     }
 
-    /* MODAL OVERLAYS */
+    /* =========================================================
+       4. MODALS & POPUPS
+       ========================================================= */
     .modal-backdrop {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(3px);
+      backdrop-filter: blur(4px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -301,7 +313,7 @@
       justify-content: center;
       gap: 10px;
       font-weight: 600;
-      padding: 10px;
+      padding: 11px;
       border-radius: 8px;
     }
 
@@ -324,6 +336,112 @@
       color: var(--text-muted);
       font-size: 0.8rem;
     }
+
+    /* =========================================================
+       5. RESPONSIVE BREAKPOINTS (PHONE, TABLET, DESKTOP)
+       ========================================================= */
+
+    /* TABLET OPTIMIZATIONS (768px to 1024px) */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      header {
+        padding: 12px 16px;
+      }
+      #chat-container {
+        max-width: 92%;
+        padding: 20px 12px;
+      }
+      .chat-bubble {
+        max-width: 85%;
+      }
+      .input-dock {
+        max-width: 92%;
+      }
+    }
+
+    /* PHONE / MOBILE OPTIMIZATIONS (< 768px) */
+    @media (max-width: 767px) {
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 12px;
+        gap: 8px;
+      }
+
+      .brand {
+        justify-content: center;
+        font-size: 1.05rem;
+      }
+
+      .nav-controls {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 6px;
+        width: 100%;
+      }
+
+      #model-select {
+        font-size: 0.82rem;
+        padding: 6px 8px;
+        text-overflow: ellipsis;
+      }
+
+      .nav-controls button {
+        padding: 6px 10px;
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+
+      #chat-container {
+        padding: 14px 10px;
+        gap: 12px;
+      }
+
+      #welcome-splash {
+        padding: 20px 14px;
+        margin: 20px auto;
+      }
+
+      #welcome-splash h2 {
+        font-size: 1.25rem;
+      }
+
+      .chat-bubble {
+        max-width: 92%;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+      }
+
+      footer {
+        padding: 10px 12px;
+      }
+
+      .input-dock {
+        gap: 6px;
+      }
+
+      .input-dock input {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      #send-btn {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+      }
+
+      /* Modal Mobile Sheet Style */
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal-box {
+        max-width: 100%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding: 20px 16px 28px 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -335,7 +453,6 @@
     </div>
 
     <div class="nav-controls">
-      <!-- Model Selector -->
       <select id="model-select" title="Select AI Model">
         <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
         <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (Free)</option>
@@ -344,13 +461,11 @@
         <option value="openrouter/free">Auto Free Router 🔀</option>
       </select>
 
-      <!-- Custom Prompt Modal Toggle -->
-      <button onclick="toggleSettingsModal()" title="Custom System Instructions">
-        ⚙️ System Prompt
+      <button type="button" onclick="toggleSettingsModal()" title="Custom System Instructions">
+        ⚙️ Prompt
       </button>
 
-      <!-- Auth Trigger Button -->
-      <button id="auth-btn" class="btn-primary" onclick="toggleAuthModal()">
+      <button type="button" id="auth-btn" class="btn-primary" onclick="toggleAuthModal()">
         Sign In
       </button>
     </div>
@@ -361,7 +476,7 @@
     <div id="welcome-splash">
       <h2>Welcome to TECHSAVVY AI ⚡</h2>
       <p>
-        Your dedicated AI tech companion for hardware, retro device modding, Android customization, and web development.<br/><br/>
+        Your dedicated AI companion for retro tech modding, Android customization, and web development.<br/><br/>
         Select any model above, configure your custom instructions, or jump straight into the chat!
       </p>
     </div>
@@ -387,9 +502,9 @@
     <div class="modal-box">
       <h3>⚙️ Custom Instructions</h3>
       <p>
-        The base TECHSAVVY persona remains active at all times. Add your own specific rules, code preferences, or formatting requests below:
+        The base TECHSAVVY persona remains active at all times. Add your own specific rules or formatting requests below:
       </p>
-      <textarea id="custom-prompt-input" rows="5" placeholder="e.g. Always structure coding solutions with step-by-step explanations..."></textarea>
+      <textarea id="custom-prompt-input" rows="4" placeholder="e.g. Always structure coding solutions with step-by-step explanations..."></textarea>
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button type="button" onclick="toggleSettingsModal()">Cancel</button>
         <button type="button" class="btn-primary" onclick="saveCustomPrompt()">Save Instructions</button>
@@ -402,20 +517,18 @@
     <div class="modal-box">
       <h3 style="text-align: center;">Account Login</h3>
 
-      <!-- OAuth Providers -->
-      <button class="oauth-btn google" onclick="loginWithProvider('google')">
+      <button type="button" class="oauth-btn google" onclick="loginWithProvider('google')">
         <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
         Sign in with Google
       </button>
 
-      <button class="oauth-btn github" onclick="loginWithProvider('github')">
+      <button type="button" class="oauth-btn github" onclick="loginWithProvider('github')">
         <svg width="18" height="18" fill="white" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
         Sign in with GitHub
       </button>
 
       <div class="divider">— OR WITH EMAIL —</div>
 
-      <!-- Native Auth -->
       <input type="email" id="auth-email" placeholder="Email address" />
       <input type="password" id="auth-pass" placeholder="Password" />
 
@@ -432,10 +545,17 @@
 
   <script>
     // 1. SUPABASE CLIENT INITIALIZATION
-    // Replace with your project details from Supabase Dashboard -> Settings -> API
     const SUPABASE_URL = 'https://ujgxwyzdvdhmtinpjgxc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_piPDZCz5m64H7LioYcv0dw_V-q_H0Bu';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let supabase = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (err) {
+      console.warn('Supabase initialization warning:', err);
+    }
 
     // 2. RUNTIME STATE
     const conversationHistory = [];
@@ -450,6 +570,10 @@
 
     // 3. AUTH HANDLING
     async function loginWithProvider(provider) {
+      if (!supabase) {
+        alert('Supabase client could not be loaded. Pwease check connection.');
+        return;
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: { redirectTo: window.location.origin }
@@ -458,6 +582,10 @@
     }
 
     async function handleEmailLogin() {
+      if (!supabase) {
+        alert('Supabase client could not be loaded. Pwease check connection.');
+        return;
+      }
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-pass').value.trim();
       if (!email || !password) return alert('Pwease fill in both email and password.');
@@ -468,6 +596,10 @@
     }
 
     async function handleEmailSignUp() {
+      if (!supabase) {
+        alert('Supabase client could not be loaded. Pwease check connection.');
+        return;
+      }
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-pass').value.trim();
       if (!email || !password) return alert('Pwease fill in both email and password.');
@@ -478,23 +610,25 @@
       toggleAuthModal();
     }
 
-    supabase.auth.onAuthStateChange((event, session) => {
-      currentUser = session?.user || null;
-      if (currentUser) {
-        const username = currentUser.email ? currentUser.email.split('@')[0] : 'User';
-        authBtn.textContent = username;
-        authBtn.classList.remove('btn-primary');
-        authBtn.onclick = async () => {
-          if (confirm('Do you want to log out?')) {
-            await supabase.auth.signOut();
-          }
-        };
-      } else {
-        authBtn.textContent = 'Sign In';
-        authBtn.classList.add('btn-primary');
-        authBtn.onclick = toggleAuthModal;
-      }
-    });
+    if (supabase) {
+      supabase.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        if (currentUser) {
+          const username = currentUser.email ? currentUser.email.split('@')[0] : 'User';
+          authBtn.textContent = username;
+          authBtn.classList.remove('btn-primary');
+          authBtn.onclick = async () => {
+            if (confirm('Do you want to log out?')) {
+              await supabase.auth.signOut();
+            }
+          };
+        } else {
+          authBtn.textContent = 'Sign In';
+          authBtn.classList.add('btn-primary');
+          authBtn.onclick = toggleAuthModal;
+        }
+      });
+    }
 
     // 4. MODALS
     function toggleSettingsModal() {
@@ -514,7 +648,8 @@
 
     function toggleAuthModal() {
       const modal = document.getElementById('auth-modal');
-      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+      const isVisible = modal.style.display === 'flex';
+      modal.style.display = isVisible ? 'none' : 'flex';
     }
 
     // 5. CHAT LOGIC
