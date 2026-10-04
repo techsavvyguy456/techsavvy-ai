@@ -3,8 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- Browser Tab Title -->
   <title>Funny & Witty・TECHSAVVY AI・Supports Legacy devices!</title>
+  
   <link rel="icon" type="image/png" href="icon.png" />
+  
+  <!-- Web App Manifest for Android Chrome / Home Screen Shortcuts -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- iOS / Safari Home Screen Title -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="TECHSAVVY AI" />
+
+  <!-- Android / Chrome Shortcut Title Fallback -->
+  <meta name="application-name" content="TECHSAVVY AI" />
+  <meta name="mobile-web-app-capable" content="yes" />
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -242,7 +256,7 @@
       object-fit: contain;
     }
 
-    /* FOOTER */
+    /* FOOTER / INPUT DOCK */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
@@ -390,6 +404,7 @@
 <body>
 
   <div id="app-root">
+    <!-- DRAWER & OVERLAY -->
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
     <div id="history-drawer">
       <div class="history-header">
@@ -639,14 +654,4 @@
     function openHistoryDrawer() {
       toggleHistoryDrawer();
       const local = getLocalChats();
-      historyList.innerHTML = local.length === 0 ? '<p style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No saved chats.</p>' : '';
-      local.forEach(chat => {
-        const item = document.createElement('div');
-        item.style.padding = '6px';
-        item.style.fontSize = '0.8rem';
-        item.style.cursor = 'pointer';
-        item.textContent = chat.title || 'Conversation';
-        item.onclick = () => {
-          conversationHistory = chat.messages;
-          chatContainer.innerHTML = '';
-          conversationHistory.forEach(m => appendBubble(m.role === 'user' ? 
+      historyList.innerHTML
