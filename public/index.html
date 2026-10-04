@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>TECHSAVVY AI ⚡</title>
+  <title>Funny & Witty・TECHSAVVY AI・Supports Legacy devices!</title>
   <link rel="icon" type="image/png" href="icon.png" />
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
@@ -37,7 +37,7 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       overflow: hidden;
-      position: fixed; /* Prevents bounce scroll hiding the input dock on older Android */
+      position: fixed;
     }
 
     #app-root {
@@ -75,8 +75,10 @@
     }
 
     .brand img {
-      width: 22px;
-      height: 22px;
+      width: 22px !important;
+      height: 22px !important;
+      max-width: 22px !important;
+      max-height: 22px !important;
       border-radius: 4px;
       object-fit: cover;
     }
@@ -146,11 +148,22 @@
 
     #welcome-splash h2 {
       color: var(--accent-cyan);
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+    }
+
+    #welcome-splash img {
+      width: 26px !important;
+      height: 26px !important;
+      max-width: 26px !important;
+      max-height: 26px !important;
+      border-radius: 6px;
+      object-fit: cover;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     #welcome-splash p {
@@ -229,7 +242,7 @@
       object-fit: contain;
     }
 
-    /* FOOTER / INPUT DOCK */
+    /* FOOTER */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
@@ -249,8 +262,10 @@
     }
 
     .image-preview-dock img {
-      width: 34px;
-      height: 34px;
+      width: 34px !important;
+      height: 34px !important;
+      max-width: 34px !important;
+      max-height: 34px !important;
       border-radius: 4px;
       object-fit: cover;
     }
@@ -375,7 +390,6 @@
 <body>
 
   <div id="app-root">
-    <!-- DRAWER & OVERLAY -->
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
     <div id="history-drawer">
       <div class="history-header">
@@ -387,14 +401,15 @@
 
     <header>
       <div class="brand">
-        <img src="icon.png" alt="icon" onerror="this.style.display='none'" />
+        <img src="icon.png" width="22" height="22" alt="icon" onerror="this.style.display='none'" />
         TECHSAVVY <span>AI</span>
       </div>
 
       <div class="nav-controls">
         <select id="model-select">
-          <option value="meta-llama/llama-3.2-3b-instruct:free" selected>Llama 3.2 ⚡</option>
-          <option value="google/gemma-2-9b-it:free">Gemma 2 👁️</option>
+          <option value="stealth/space-bunny-alpha" selected>Space Bunny 🐰 (Free)</option>
+          <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra ⚡</option>
+          <option value="poolside/laguna-s-2.1:free">Laguna S 2.1 💻</option>
           <option value="openrouter/free">Auto Free 🔀</option>
         </select>
 
@@ -413,7 +428,7 @@
     <div id="chat-container">
       <div id="welcome-splash">
         <h2>
-          <img src="icon.png" alt="icon" onerror="this.style.display='none'" />
+          <img src="icon.png" width="26" height="26" alt="icon" onerror="this.style.display='none'" />
           TECHSAVVY AI ⚡
         </h2>
         <p>Modding assistant for custom ROMs, legacy gear & bootloops!</p>
@@ -445,8 +460,8 @@
 
     <footer>
       <div id="image-preview-dock" class="image-preview-dock">
-        <img id="image-preview-img" src="" alt="preview" />
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached</span>
+        <img id="image-preview-img" src="" width="34" height="34" alt="preview" />
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached (Space Bunny)</span>
         <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red);">✕</button>
       </div>
 
@@ -598,7 +613,7 @@
         currentAttachedBase64 = evt.target.result;
         imagePreviewImg.src = currentAttachedBase64;
         imagePreviewDock.style.display = 'flex';
-        modelSelect.value = 'google/gemma-2-9b-it:free';
+        modelSelect.value = 'stealth/space-bunny-alpha';
       };
       reader.readAsDataURL(file);
     }
@@ -634,147 +649,4 @@
         item.onclick = () => {
           conversationHistory = chat.messages;
           chatContainer.innerHTML = '';
-          conversationHistory.forEach(m => appendBubble(m.role === 'user' ? 'user' : 'bot', m.content));
-          toggleHistoryDrawer();
-        };
-        historyList.appendChild(item);
-      });
-    }
-
-    function startNewChat() {
-      currentChatId = null;
-      conversationHistory = [];
-      clearAttachedImage();
-      location.reload();
-    }
-
-    function toggleSettingsModal() {
-      const m = document.getElementById('settings-modal');
-      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function saveCustomPrompt() {
-      customInstructions = document.getElementById('custom-prompt-input').value.trim();
-      localStorage.setItem('techsavvy_custom_instructions', customInstructions);
-      toggleSettingsModal();
-    }
-
-    function toggleAuthModal() {
-      const m = document.getElementById('auth-modal');
-      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function toggleProfileModal() {
-      const m = document.getElementById('profile-modal');
-      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    async function handleEmailLogin() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-pass').value.trim();
-      if (!email || !password) return alert('Pwease enter email and password.');
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      else toggleAuthModal();
-    }
-
-    async function handleEmailSignUp() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-pass').value.trim();
-      if (!email || !password) return alert('Pwease enter email and password.');
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) alert(error.message);
-      else { alert('Verification sent!'); toggleAuthModal(); }
-    }
-
-    async function handleSignOut() {
-      await supabase.auth.signOut();
-      toggleProfileModal();
-      startNewChat();
-    }
-
-    async function saveUsername() {
-      const name = document.getElementById('username-input').value.trim();
-      if (!name) return alert('Pwease provide a name.');
-      localStorage.setItem('techsavvy_cached_username', name);
-      authBtn.textContent = `@${name}`;
-      toggleProfileModal();
-    }
-
-    function appendBubble(role, content, isError = false) {
-      const splash = document.getElementById('welcome-splash');
-      if (splash) splash.remove();
-
-      const bubble = document.createElement('div');
-      bubble.className = `chat-bubble ${role} ${isError ? 'error' : ''}`;
-
-      if (Array.isArray(content)) {
-        content.forEach(p => {
-          if (p.type === 'image_url') {
-            const img = document.createElement('img');
-            img.src = p.image_url.url;
-            bubble.appendChild(img);
-          } else if (p.type === 'text') {
-            const d = document.createElement('div');
-            d.textContent = p.text;
-            bubble.appendChild(d);
-          }
-        });
-      } else {
-        if (role === 'bot' && typeof marked !== 'undefined') bubble.innerHTML = marked.parse(content);
-        else bubble.textContent = content;
-      }
-
-      chatContainer.appendChild(bubble);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    async function handleSend(e) {
-      if (e) e.preventDefault();
-      const text = userInput.value.trim();
-      if (!text && !currentAttachedBase64) return;
-
-      let payload = currentAttachedBase64 ? [
-        { type: 'text', text: text || 'Analyze this image.' },
-        { type: 'image_url', image_url: { url: currentAttachedBase64 } }
-      ] : text;
-
-      appendBubble('user', payload);
-      conversationHistory.push({ role: 'user', content: payload });
-
-      userInput.value = '';
-      const img = currentAttachedBase64;
-      clearAttachedImage();
-      sendBtn.disabled = true;
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: conversationHistory,
-            model: img ? 'google/gemma-2-9b-it:free' : modelSelect.value,
-            customInstructions: customInstructions
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          conversationHistory.pop();
-          appendBubble('bot', data.error || 'Request error.', true);
-        } else {
-          conversationHistory.push({ role: 'assistant', content: data.reply });
-          appendBubble('bot', data.reply);
-          const first = typeof payload === 'string' ? payload : 'Image query';
-          saveLocalChat(currentChatId || Date.now().toString(), first.slice(0, 24), conversationHistory);
-        }
-      } catch (err) {
-        conversationHistory.pop();
-        appendBubble('bot', 'Network failure connecting to AI.', true);
-      } finally {
-        sendBtn.disabled = false;
-      }
-    }
-  </script>
-</body>
-</html>
+          conversationHistory.forEach(m => appendBubble(m.role === 'user' ? 
