@@ -56,7 +56,6 @@
       bottom: 0;
     }
 
-    /* HEADER */
     header {
       background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
@@ -127,7 +126,6 @@
       text-decoration: none;
     }
 
-    /* CHAT CONTAINER */
     #chat-container {
       flex: 1;
       overflow-y: scroll;
@@ -243,6 +241,12 @@
       border-bottom-left-radius: 2px;
     }
 
+    .chat-bubble.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger-red);
+      color: #fca5a5;
+    }
+
     .chat-bubble img {
       max-width: 100%;
       max-height: 180px;
@@ -278,7 +282,6 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
-    /* FOOTER */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
@@ -341,45 +344,6 @@
       flex-shrink: 0;
     }
 
-    /* HISTORY DRAWER */
-    #history-drawer {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      background: var(--panel-bg);
-      border-right: 1px solid var(--border-color);
-      z-index: 1100;
-      flex-direction: column;
-    }
-
-    .history-header {
-      padding: 10px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .history-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .drawer-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1050;
-    }
-
     @media (min-width: 500px) {
       .starter-chips { grid-template-columns: repeat(2, 1fr); }
     }
@@ -388,15 +352,6 @@
 <body>
 
   <div id="app-root">
-    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
-    <div id="history-drawer">
-      <div class="history-header">
-        <h3 style="font-size: 0.95rem; color: var(--accent-cyan);">📜 Saved Chats</h3>
-        <button type="button" onclick="toggleHistoryDrawer()">✕</button>
-      </div>
-      <div id="history-list" class="history-list"></div>
-    </div>
-
     <header>
       <div class="brand">
         <img src="icon.png" width="22" height="22" alt="icon" onerror="this.style.display='none'" />
@@ -405,14 +360,13 @@
 
       <div class="nav-controls">
         <select id="model-select">
-          <option value="stealth/space-bunny-alpha" selected>Space Bunny 🐰 (Free)</option>
+          <option value="openrouter/free" selected>Auto Free 🔀 (Reliable)</option>
+          <option value="poolside/laguna-s-2.1:free">Laguna S 2.1 💻 (Fast)</option>
+          <option value="google/gemma-4-26b-a4b-it:free">Gemma 4 👁️ (Vision)</option>
           <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra ⚡</option>
-          <option value="poolside/laguna-s-2.1:free">Laguna S 2.1 💻</option>
-          <option value="openrouter/free">Auto Free 🔀</option>
         </select>
 
-        <button type="button" id="history-btn" onclick="openHistoryDrawer()">📜</button>
-        <button type="button" id="new-chat-btn" onclick="startNewChat()">➕</button>
+        <button type="button" onclick="window.location.reload()">➕ New</button>
 
         <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
           <button type="button" class="discord-btn">Discord</button>
@@ -460,64 +414,32 @@
         <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red); cursor:pointer;">✕</button>
       </div>
 
-      <div class="input-dock">
+      <form class="input-dock" onsubmit="handleSend(event)">
         <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageSelection(event)" />
-        <button type="button" class="attach-btn" onclick="triggerFilePicker()">📎</button>
+        <button type="button" class="attach-btn" onclick="document.getElementById('image-file-input').click()">📎</button>
 
         <input 
           type="text" 
           id="user-input" 
           placeholder="Ask anything or attach a photo..." 
           autocomplete="off" 
-          onkeydown="if(event.keyCode===13){executeSend();}"
         />
 
-        <button type="button" id="send-btn" class="btn-primary" onclick="executeSend()">Send 🚀</button>
-      </div>
+        <button type="submit" id="send-btn" class="btn-primary">Send 🚀</button>
+      </form>
     </footer>
   </div>
 
   <script>
     var conversationHistory = [];
-    var currentChatId = null;
     var currentAttachedBase64 = null;
 
     var chatContainer = document.getElementById('chat-container');
     var userInput = document.getElementById('user-input');
     var sendBtn = document.getElementById('send-btn');
     var modelSelect = document.getElementById('model-select');
-    var historyDrawer = document.getElementById('history-drawer');
-    var drawerOverlay = document.getElementById('drawer-overlay');
-    var historyList = document.getElementById('history-list');
     var imagePreviewDock = document.getElementById('image-preview-dock');
     var imagePreviewImg = document.getElementById('image-preview-img');
-
-    function getLocalChats() {
-      try {
-        return JSON.parse(localStorage.getItem('techsavvy_saved_chats') || '[]');
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveLocalChat(id, title, messages) {
-      try {
-        var chats = getLocalChats();
-        var idx = -1;
-        for (var i = 0; i < chats.length; i++) {
-          if (chats[i].id === id) { idx = i; break; }
-        }
-        var item = { id: id, title: title, messages: messages, updated_at: new Date().toISOString() };
-        if (idx >= 0) chats[idx] = item;
-        else chats.unshift(item);
-        localStorage.setItem('techsavvy_saved_chats', JSON.stringify(chats.slice(0, 20)));
-      } catch (e) {}
-    }
-
-    function triggerFilePicker() {
-      var fileInput = document.getElementById('image-file-input');
-      if (fileInput) fileInput.click();
-    }
 
     function handleImageSelection(e) {
       var file = e.target.files && e.target.files[0];
@@ -527,7 +449,7 @@
         currentAttachedBase64 = evt.target.result;
         imagePreviewImg.src = currentAttachedBase64;
         imagePreviewDock.style.display = 'flex';
-        modelSelect.value = 'stealth/space-bunny-alpha';
+        modelSelect.value = 'google/gemma-4-26b-a4b-it:free';
       };
       reader.readAsDataURL(file);
     }
@@ -547,45 +469,9 @@
       }
     }
 
-    function toggleHistoryDrawer() {
-      var open = historyDrawer.style.display === 'flex';
-      historyDrawer.style.display = open ? 'none' : 'flex';
-      drawerOverlay.style.display = open ? 'none' : 'block';
-    }
-
-    function openHistoryDrawer() {
-      toggleHistoryDrawer();
-      var local = getLocalChats();
-      historyList.innerHTML = local.length === 0 ? '<p style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No saved chats.</p>' : '';
-      local.forEach(function(chat) {
-        var item = document.createElement('div');
-        item.style.padding = '8px';
-        item.style.fontSize = '0.8rem';
-        item.style.cursor = 'pointer';
-        item.style.borderBottom = '1px solid var(--border-color)';
-        item.textContent = chat.title || 'Conversation';
-        item.onclick = function() {
-          conversationHistory = chat.messages || [];
-          chatContainer.innerHTML = '';
-          conversationHistory.forEach(function(m) {
-            appendBubble(m.role === 'user' ? 'user' : 'bot', m.content);
-          });
-          toggleHistoryDrawer();
-        };
-        historyList.appendChild(item);
-      });
-    }
-
-    function startNewChat() {
-      currentChatId = null;
-      conversationHistory = [];
-      clearAttachedImage();
-      window.location.reload();
-    }
-
     function appendBubble(role, content, isError) {
       var splash = document.getElementById('welcome-splash');
-      if (splash) splash.parentNode.removeChild(splash);
+      if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
 
       var bubble = document.createElement('div');
       bubble.className = 'chat-bubble ' + role + (isError ? ' error' : '');
@@ -625,6 +511,12 @@
       if (el && el.parentNode) el.parentNode.removeChild(el);
     }
 
+    function handleSend(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      executeSend();
+      return false;
+    }
+
     function executeSend() {
       var text = userInput ? userInput.value.trim() : '';
       if (!text && !currentAttachedBase64) return;
@@ -634,12 +526,14 @@
         { type: 'image_url', image_url: { url: currentAttachedBase64 } }
       ] : text;
 
-      appendBubble('user', payload);
+      // Immediately render user message on screen
+      appendBubble('user', payload, false);
       conversationHistory.push({ role: 'user', content: payload });
 
       if (userInput) userInput.value = '';
       var img = currentAttachedBase64;
       clearAttachedImage();
+
       sendBtn.disabled = true;
       showTypingIndicator();
 
@@ -656,19 +550,17 @@
             try {
               var data = JSON.parse(xhr.responseText);
               conversationHistory.push({ role: 'assistant', content: data.reply });
-              appendBubble('bot', data.reply);
-              var first = typeof payload === 'string' ? payload : 'Image query';
-              saveLocalChat(currentChatId || Date.now().toString(), first.slice(0, 24), conversationHistory);
+              appendBubble('bot', data.reply, false);
             } catch (err) {
-              appendBubble('bot', 'Error parsing response from server.', true);
+              appendBubble('bot', 'Error parsing response JSON from server.', true);
             }
           } else {
             conversationHistory.pop();
             try {
               var errData = JSON.parse(xhr.responseText);
-              appendBubble('bot', errData.error || 'Server returned an error.', true);
+              appendBubble('bot', errData.error || ('Server error: ' + xhr.status), true);
             } catch (e) {
-              appendBubble('bot', 'Network or server failure (' + xhr.status + ').', true);
+              appendBubble('bot', 'Network or server failure (HTTP ' + xhr.status + ').', true);
             }
           }
         }
@@ -676,7 +568,7 @@
 
       xhr.send(JSON.stringify({
         messages: conversationHistory,
-        model: img ? 'stealth/space-bunny-alpha' : modelSelect.value
+        model: img ? 'google/gemma-4-26b-a4b-it:free' : modelSelect.value
       }));
     }
   </script>
