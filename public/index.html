@@ -4,24 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <!-- Browser Tab Title -->
   <title>Funny & Witty・TECHSAVVY AI・Supports Legacy devices!</title>
   
   <link rel="icon" type="image/png" href="icon.png" />
-  
-  <!-- Web App Manifest for Android Chrome / Home Screen Shortcuts -->
   <link rel="manifest" href="manifest.json" />
 
-  <!-- iOS / Safari Home Screen Title -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="TECHSAVVY AI" />
-
-  <!-- Android / Chrome Shortcut Title Fallback -->
   <meta name="application-name" content="TECHSAVVY AI" />
   <meta name="mobile-web-app-capable" content="yes" />
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
     :root {
@@ -51,7 +42,6 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       overflow: hidden;
-      position: fixed;
     }
 
     #app-root {
@@ -59,6 +49,11 @@
       flex-direction: column;
       height: 100%;
       width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
 
     /* HEADER */
@@ -256,7 +251,34 @@
       object-fit: contain;
     }
 
-    /* FOOTER / INPUT DOCK */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      width: fit-content;
+      align-self: flex-start;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: pulse 1.4s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* FOOTER */
     footer {
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
@@ -278,8 +300,6 @@
     .image-preview-dock img {
       width: 34px !important;
       height: 34px !important;
-      max-width: 34px !important;
-      max-height: 34px !important;
       border-radius: 4px;
       object-fit: cover;
     }
@@ -360,51 +380,14 @@
       z-index: 1050;
     }
 
-    /* MODALS */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-    }
-
-    .modal-box {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 340px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .modal-box textarea, .modal-box input {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-    }
-
     @media (min-width: 500px) {
-      .starter-chips {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .starter-chips { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
 
   <div id="app-root">
-    <!-- DRAWER & OVERLAY -->
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
     <div id="history-drawer">
       <div class="history-header">
@@ -428,15 +411,12 @@
           <option value="openrouter/free">Auto Free 🔀</option>
         </select>
 
-        <button type="button" id="history-btn" onclick="openHistoryDrawer()" style="display: none;">📜</button>
-        <button type="button" onclick="toggleSettingsModal()">⚙️</button>
-        <button type="button" id="new-chat-btn" onclick="startNewChat()" style="display: none;">➕</button>
+        <button type="button" id="history-btn" onclick="openHistoryDrawer()">📜</button>
+        <button type="button" id="new-chat-btn" onclick="startNewChat()">➕</button>
 
         <a href="https://discord.gg/FAzYUXGSmF" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
           <button type="button" class="discord-btn">Discord</button>
         </a>
-
-        <button type="button" id="auth-btn" class="btn-primary" onclick="toggleAuthModal()">Sign In</button>
       </div>
     </header>
 
@@ -476,154 +456,73 @@
     <footer>
       <div id="image-preview-dock" class="image-preview-dock">
         <img id="image-preview-img" src="" width="34" height="34" alt="preview" />
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached (Space Bunny)</span>
-        <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red);">✕</button>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached</span>
+        <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red); cursor:pointer;">✕</button>
       </div>
 
-      <form class="input-dock" onsubmit="handleSend(event)">
+      <div class="input-dock">
         <input type="file" id="image-file-input" accept="image/*" style="display: none;" onchange="handleImageSelection(event)" />
-        <button type="button" class="attach-btn" onclick="document.getElementById('image-file-input').click()">📎</button>
+        <button type="button" class="attach-btn" onclick="triggerFilePicker()">📎</button>
 
         <input 
           type="text" 
           id="user-input" 
           placeholder="Ask anything or attach a photo..." 
           autocomplete="off" 
+          onkeydown="if(event.keyCode===13){executeSend();}"
         />
 
-        <button type="submit" id="send-btn" class="btn-primary">Send 🚀</button>
-      </form>
+        <button type="button" id="send-btn" class="btn-primary" onclick="executeSend()">Send 🚀</button>
+      </div>
     </footer>
   </div>
 
-  <!-- SETTINGS MODAL -->
-  <div id="settings-modal" class="modal-backdrop">
-    <div class="modal-box">
-      <h3 style="color: var(--accent-cyan); font-size: 1rem;">⚙️ Custom Prompt</h3>
-      <textarea id="custom-prompt-input" rows="3"></textarea>
-      <div style="display: flex; justify-content: flex-end; gap: 6px;">
-        <button type="button" onclick="toggleSettingsModal()">Cancel</button>
-        <button type="button" class="btn-primary" onclick="saveCustomPrompt()">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- AUTH MODAL -->
-  <div id="auth-modal" class="modal-backdrop">
-    <div class="modal-box">
-      <h3 style="text-align: center; color: var(--accent-cyan); font-size: 1rem;">Account Login</h3>
-      <input type="email" id="auth-email" placeholder="Email address" />
-      <input type="password" id="auth-pass" placeholder="Password" />
-      <div style="display: flex; gap: 6px;">
-        <button type="button" class="btn-primary" style="flex:1;" onclick="handleEmailLogin()">Sign In</button>
-        <button type="button" style="flex:1;" onclick="handleEmailSignUp()">Sign Up</button>
-      </div>
-      <button type="button" style="background:transparent; border:none; color:var(--text-muted); font-size:0.75rem;" onclick="toggleAuthModal()">Close</button>
-    </div>
-  </div>
-
-  <!-- PROFILE MODAL -->
-  <div id="profile-modal" class="modal-backdrop">
-    <div class="modal-box">
-      <h3 style="color: var(--accent-cyan); font-size: 1rem;">👤 Account Profile</h3>
-      <input type="text" id="username-input" placeholder="Set custom username..." maxlength="24" />
-      <div style="display: flex; justify-content: space-between; gap: 6px;">
-        <button type="button" style="color: var(--danger-red);" onclick="handleSignOut()">Log Out</button>
-        <div style="display: flex; gap: 6px;">
-          <button type="button" onclick="toggleProfileModal()">Cancel</button>
-          <button type="button" class="btn-primary" onclick="saveUsername()">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const SUPABASE_URL = 'https://ujgxwyzdvdhmtinpjgxc.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_piPDZCz5m64H7LioYcv0dw_V-q_H0Bu';
-    
-    let supabase = null;
-    try {
-      if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.warn('Supabase init notice:', e);
-    }
+    var conversationHistory = [];
+    var currentChatId = null;
+    var currentAttachedBase64 = null;
 
-    let conversationHistory = [];
-    let customInstructions = localStorage.getItem('techsavvy_custom_instructions') || '';
-    let currentUser = null;
-    let currentChatId = null;
-    let currentAttachedBase64 = null;
-
-    const chatContainer = document.getElementById('chat-container');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const modelSelect = document.getElementById('model-select');
-    const authBtn = document.getElementById('auth-btn');
-    const newChatBtn = document.getElementById('new-chat-btn');
-    const historyBtn = document.getElementById('history-btn');
-    const historyDrawer = document.getElementById('history-drawer');
-    const drawerOverlay = document.getElementById('drawer-overlay');
-    const historyList = document.getElementById('history-list');
-    const imagePreviewDock = document.getElementById('image-preview-dock');
-    const imagePreviewImg = document.getElementById('image-preview-img');
+    var chatContainer = document.getElementById('chat-container');
+    var userInput = document.getElementById('user-input');
+    var sendBtn = document.getElementById('send-btn');
+    var modelSelect = document.getElementById('model-select');
+    var historyDrawer = document.getElementById('history-drawer');
+    var drawerOverlay = document.getElementById('drawer-overlay');
+    var historyList = document.getElementById('history-list');
+    var imagePreviewDock = document.getElementById('image-preview-dock');
+    var imagePreviewImg = document.getElementById('image-preview-img');
 
     function getLocalChats() {
       try {
         return JSON.parse(localStorage.getItem('techsavvy_saved_chats') || '[]');
-      } catch {
+      } catch (e) {
         return [];
       }
     }
 
     function saveLocalChat(id, title, messages) {
       try {
-        const chats = getLocalChats();
-        const idx = chats.findIndex(c => c.id === id);
-        const item = { id, title, messages, updated_at: new Date().toISOString() };
+        var chats = getLocalChats();
+        var idx = -1;
+        for (var i = 0; i < chats.length; i++) {
+          if (chats[i].id === id) { idx = i; break; }
+        }
+        var item = { id: id, title: title, messages: messages, updated_at: new Date().toISOString() };
         if (idx >= 0) chats[idx] = item;
         else chats.unshift(item);
         localStorage.setItem('techsavvy_saved_chats', JSON.stringify(chats.slice(0, 20)));
       } catch (e) {}
     }
 
-    const cachedUsername = localStorage.getItem('techsavvy_cached_username');
-    if (cachedUsername) {
-      authBtn.textContent = `@${cachedUsername}`;
-      authBtn.classList.remove('btn-primary');
-      authBtn.onclick = toggleProfileModal;
-      newChatBtn.style.display = 'inline-block';
-      historyBtn.style.display = 'inline-block';
-    }
-
-    async function applyUserSession(session) {
-      currentUser = session?.user || null;
-      if (currentUser) {
-        authBtn.classList.remove('btn-primary');
-        authBtn.onclick = toggleProfileModal;
-        newChatBtn.style.display = 'inline-block';
-        historyBtn.style.display = 'inline-block';
-      } else {
-        localStorage.removeItem('techsavvy_cached_username');
-        authBtn.textContent = 'Sign In';
-        authBtn.classList.add('btn-primary');
-        authBtn.onclick = toggleAuthModal;
-        newChatBtn.style.display = 'none';
-        historyBtn.style.display = 'none';
-        currentChatId = null;
-      }
-    }
-
-    if (supabase) {
-      supabase.auth.getSession().then(({ data: { session } }) => applyUserSession(session));
-      supabase.auth.onAuthStateChange((_, session) => applyUserSession(session));
+    function triggerFilePicker() {
+      var fileInput = document.getElementById('image-file-input');
+      if (fileInput) fileInput.click();
     }
 
     function handleImageSelection(e) {
-      const file = e.target.files?.[0];
+      var file = e.target.files && e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
+      var reader = new FileReader();
       reader.onload = function(evt) {
         currentAttachedBase64 = evt.target.result;
         imagePreviewImg.src = currentAttachedBase64;
@@ -635,23 +534,151 @@
 
     function clearAttachedImage() {
       currentAttachedBase64 = null;
-      document.getElementById('image-file-input').value = '';
+      var fileInput = document.getElementById('image-file-input');
+      if (fileInput) fileInput.value = '';
       imagePreviewDock.style.display = 'none';
       imagePreviewImg.src = '';
     }
 
     function triggerStarterPrompt(text) {
-      userInput.value = text;
-      handleSend(new Event('submit'));
+      if (userInput) {
+        userInput.value = text;
+        executeSend();
+      }
     }
 
     function toggleHistoryDrawer() {
-      const open = historyDrawer.style.display === 'flex';
+      var open = historyDrawer.style.display === 'flex';
       historyDrawer.style.display = open ? 'none' : 'flex';
       drawerOverlay.style.display = open ? 'none' : 'block';
     }
 
     function openHistoryDrawer() {
       toggleHistoryDrawer();
-      const local = getLocalChats();
-      historyList.innerHTML
+      var local = getLocalChats();
+      historyList.innerHTML = local.length === 0 ? '<p style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No saved chats.</p>' : '';
+      local.forEach(function(chat) {
+        var item = document.createElement('div');
+        item.style.padding = '8px';
+        item.style.fontSize = '0.8rem';
+        item.style.cursor = 'pointer';
+        item.style.borderBottom = '1px solid var(--border-color)';
+        item.textContent = chat.title || 'Conversation';
+        item.onclick = function() {
+          conversationHistory = chat.messages || [];
+          chatContainer.innerHTML = '';
+          conversationHistory.forEach(function(m) {
+            appendBubble(m.role === 'user' ? 'user' : 'bot', m.content);
+          });
+          toggleHistoryDrawer();
+        };
+        historyList.appendChild(item);
+      });
+    }
+
+    function startNewChat() {
+      currentChatId = null;
+      conversationHistory = [];
+      clearAttachedImage();
+      window.location.reload();
+    }
+
+    function appendBubble(role, content, isError) {
+      var splash = document.getElementById('welcome-splash');
+      if (splash) splash.parentNode.removeChild(splash);
+
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble ' + role + (isError ? ' error' : '');
+
+      if (Array.isArray(content)) {
+        content.forEach(function(p) {
+          if (p.type === 'image_url') {
+            var img = document.createElement('img');
+            img.src = p.image_url.url;
+            bubble.appendChild(img);
+          } else if (p.type === 'text') {
+            var d = document.createElement('div');
+            d.textContent = p.text;
+            bubble.appendChild(d);
+          }
+        });
+      } else {
+        bubble.textContent = content;
+      }
+
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      removeTypingIndicator();
+      var indicator = document.createElement('div');
+      indicator.id = 'typing-indicator';
+      indicator.className = 'typing-indicator';
+      indicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+      chatContainer.appendChild(indicator);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      var el = document.getElementById('typing-indicator');
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    function executeSend() {
+      var text = userInput ? userInput.value.trim() : '';
+      if (!text && !currentAttachedBase64) return;
+
+      var payload = currentAttachedBase64 ? [
+        { type: 'text', text: text || 'Analyze this image.' },
+        { type: 'image_url', image_url: { url: currentAttachedBase64 } }
+      ] : text;
+
+      appendBubble('user', payload);
+      conversationHistory.push({ role: 'user', content: payload });
+
+      if (userInput) userInput.value = '';
+      var img = currentAttachedBase64;
+      clearAttachedImage();
+      sendBtn.disabled = true;
+      showTypingIndicator();
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/chat', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          removeTypingIndicator();
+          sendBtn.disabled = false;
+
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              conversationHistory.push({ role: 'assistant', content: data.reply });
+              appendBubble('bot', data.reply);
+              var first = typeof payload === 'string' ? payload : 'Image query';
+              saveLocalChat(currentChatId || Date.now().toString(), first.slice(0, 24), conversationHistory);
+            } catch (err) {
+              appendBubble('bot', 'Error parsing response from server.', true);
+            }
+          } else {
+            conversationHistory.pop();
+            try {
+              var errData = JSON.parse(xhr.responseText);
+              appendBubble('bot', errData.error || 'Server returned an error.', true);
+            } catch (e) {
+              appendBubble('bot', 'Network or server failure (' + xhr.status + ').', true);
+            }
+          }
+        }
+      };
+
+      xhr.send(JSON.stringify({
+        messages: conversationHistory,
+        model: img ? 'stealth/space-bunny-alpha' : modelSelect.value
+      }));
+    }
+  </script>
+</body>
+</html>
