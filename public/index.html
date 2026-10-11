@@ -14,6 +14,12 @@
   <meta name="application-name" content="TECHSAVVY AI" />
   <meta name="mobile-web-app-capable" content="yes" />
 
+  <!-- MARKDOWN & KATEX LATEX RENDERING LIBRARIES -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
   <style>
     :root {
       --bg-dark: #0c0f17;
@@ -85,8 +91,6 @@
     .brand img {
       width: 22px !important;
       height: 22px !important;
-      max-width: 22px !important;
-      max-height: 22px !important;
       border-radius: 4px;
       object-fit: cover;
     }
@@ -165,8 +169,6 @@
     #welcome-splash img {
       width: 26px !important;
       height: 26px !important;
-      max-width: 26px !important;
-      max-height: 26px !important;
       border-radius: 6px;
       object-fit: cover;
       display: inline-block;
@@ -218,7 +220,7 @@
     .chat-bubble {
       display: flex;
       flex-direction: column;
-      max-width: 88%;
+      max-width: 90%;
       padding: 10px 12px;
       border-radius: 10px;
       line-height: 1.45;
@@ -240,6 +242,53 @@
       color: var(--text-main);
       border-bottom-left-radius: 2px;
     }
+
+    /* MARKDOWN FORMATTING STYLES */
+    .chat-bubble.bot p { margin-bottom: 6px; }
+    .chat-bubble.bot p:last-child { margin-bottom: 0; }
+    .chat-bubble.bot h1, .chat-bubble.bot h2, .chat-bubble.bot h3 {
+      color: var(--accent-cyan);
+      margin: 8px 0 4px 0;
+      font-size: 0.95rem;
+    }
+    .chat-bubble.bot ul, .chat-bubble.bot ol {
+      margin-left: 18px;
+      margin-bottom: 6px;
+    }
+    .chat-bubble.bot li { margin-bottom: 3px; }
+    .chat-bubble.bot code {
+      background: var(--card-bg);
+      color: #38bdf8;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+    .chat-bubble.bot pre {
+      background: #090c13;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      overflow-x: auto;
+      margin: 6px 0;
+    }
+    .chat-bubble.bot pre code {
+      background: none;
+      padding: 0;
+      color: #a5f3fc;
+    }
+    .chat-bubble.bot table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 6px 0;
+      font-size: 0.78rem;
+    }
+    .chat-bubble.bot th, .chat-bubble.bot td {
+      border: 1px solid var(--border-color);
+      padding: 4px 6px;
+      text-align: left;
+    }
+    .chat-bubble.bot th { background: var(--card-bg); color: var(--accent-cyan); }
 
     .chat-bubble.error {
       background: rgba(239, 68, 68, 0.15);
@@ -360,10 +409,10 @@
 
       <div class="nav-controls">
         <select id="model-select">
-          <option value="openrouter/free" selected>Auto Free 🔀 (Reliable)</option>
-          <option value="poolside/laguna-s-2.1:free">Laguna S 2.1 💻 (Fast)</option>
-          <option value="google/gemma-4-26b-a4b-it:free">Gemma 4 👁️ (Vision)</option>
-          <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra ⚡</option>
+          <option value="nvidia/nemotron-3-ultra-550b-a55b:free" selected>Nemotron 3 Ultra ⚡ (Working)</option>
+          <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B 🦙 (Free)</option>
+          <option value="google/gemini-2.0-flash-lite-preview:free">Gemini 2.0 Flash 👁️ (Vision)</option>
+          <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 💻 (Free)</option>
         </select>
 
         <button type="button" onclick="window.location.reload()">➕ New</button>
@@ -410,7 +459,7 @@
     <footer>
       <div id="image-preview-dock" class="image-preview-dock">
         <img id="image-preview-img" src="" width="34" height="34" alt="preview" />
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached (Gemini Flash)</span>
         <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red); cursor:pointer;">✕</button>
       </div>
 
@@ -449,7 +498,7 @@
         currentAttachedBase64 = evt.target.result;
         imagePreviewImg.src = currentAttachedBase64;
         imagePreviewDock.style.display = 'flex';
-        modelSelect.value = 'google/gemma-4-26b-a4b-it:free';
+        modelSelect.value = 'google/gemini-2.0-flash-lite-preview:free';
       };
       reader.readAsDataURL(file);
     }
@@ -469,6 +518,30 @@
       }
     }
 
+    function renderFormattedContent(container, content) {
+      // 1. Parse Markdown
+      if (typeof marked !== 'undefined') {
+        container.innerHTML = marked.parse(content);
+      } else {
+        container.textContent = content;
+      }
+
+      // 2. Render LaTeX math ($inline$ and $$display$$) via KaTeX
+      if (typeof renderMathInElement !== 'undefined') {
+        try {
+          renderMathInElement(container, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('KaTeX render warning:', e);
+        }
+      }
+    }
+
     function appendBubble(role, content, isError) {
       var splash = document.getElementById('welcome-splash');
       if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
@@ -484,12 +557,16 @@
             bubble.appendChild(img);
           } else if (p.type === 'text') {
             var d = document.createElement('div');
-            d.textContent = p.text;
+            renderFormattedContent(d, p.text);
             bubble.appendChild(d);
           }
         });
       } else {
-        bubble.textContent = content;
+        if (role === 'bot') {
+          renderFormattedContent(bubble, content);
+        } else {
+          bubble.textContent = content;
+        }
       }
 
       chatContainer.appendChild(bubble);
@@ -526,7 +603,6 @@
         { type: 'image_url', image_url: { url: currentAttachedBase64 } }
       ] : text;
 
-      // Immediately render user message on screen
       appendBubble('user', payload, false);
       conversationHistory.push({ role: 'user', content: payload });
 
@@ -568,7 +644,7 @@
 
       xhr.send(JSON.stringify({
         messages: conversationHistory,
-        model: img ? 'google/gemma-4-26b-a4b-it:free' : modelSelect.value
+        model: img ? 'google/gemini-2.0-flash-lite-preview:free' : modelSelect.value
       }));
     }
   </script>
