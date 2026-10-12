@@ -14,7 +14,7 @@
   <meta name="application-name" content="TECHSAVVY AI" />
   <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- MARKDOWN & KATEX LATEX RENDERING LIBRARIES -->
+  <!-- MARKDOWN & KATEX LATEX RENDERING -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -169,6 +169,8 @@
     #welcome-splash img {
       width: 26px !important;
       height: 26px !important;
+      max-width: 26px !important;
+      max-height: 26px !important;
       border-radius: 6px;
       object-fit: cover;
       display: inline-block;
@@ -243,7 +245,7 @@
       border-bottom-left-radius: 2px;
     }
 
-    /* MARKDOWN FORMATTING STYLES */
+    /* MARKDOWN TYPOGRAPHY */
     .chat-bubble.bot p { margin-bottom: 6px; }
     .chat-bubble.bot p:last-child { margin-bottom: 0; }
     .chat-bubble.bot h1, .chat-bubble.bot h2, .chat-bubble.bot h3 {
@@ -409,10 +411,10 @@
 
       <div class="nav-controls">
         <select id="model-select">
-          <option value="nvidia/nemotron-3-ultra-550b-a55b:free" selected>Nemotron 3 Ultra ⚡ (Working)</option>
-          <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B 🦙 (Free)</option>
-          <option value="google/gemini-2.0-flash-lite-preview:free">Gemini 2.0 Flash 👁️ (Vision)</option>
-          <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 💻 (Free)</option>
+          <option value="nvidia/nemotron-3-ultra-550b-a55b:free" selected>Nemotron 3 Ultra ⚡ (Free)</option>
+          <option value="thinkingmachines/inkling-small:free">Inkling Small 👁️ (Vision/Free)</option>
+          <option value="poolside/laguna-s-2.1:free">Laguna S 2.1 💻 (Free)</option>
+          <option value="openrouter/free">Auto Free 🔀</option>
         </select>
 
         <button type="button" onclick="window.location.reload()">➕ New</button>
@@ -459,7 +461,7 @@
     <footer>
       <div id="image-preview-dock" class="image-preview-dock">
         <img id="image-preview-img" src="" width="34" height="34" alt="preview" />
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached (Gemini Flash)</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Image attached (Inkling Small)</span>
         <button type="button" onclick="clearAttachedImage()" style="margin-left:auto; background:none; border:none; color:var(--danger-red); cursor:pointer;">✕</button>
       </div>
 
@@ -498,7 +500,7 @@
         currentAttachedBase64 = evt.target.result;
         imagePreviewImg.src = currentAttachedBase64;
         imagePreviewDock.style.display = 'flex';
-        modelSelect.value = 'google/gemini-2.0-flash-lite-preview:free';
+        modelSelect.value = 'thinkingmachines/inkling-small:free';
       };
       reader.readAsDataURL(file);
     }
@@ -519,14 +521,12 @@
     }
 
     function renderFormattedContent(container, content) {
-      // 1. Parse Markdown
       if (typeof marked !== 'undefined') {
         container.innerHTML = marked.parse(content);
       } else {
         container.textContent = content;
       }
 
-      // 2. Render LaTeX math ($inline$ and $$display$$) via KaTeX
       if (typeof renderMathInElement !== 'undefined') {
         try {
           renderMathInElement(container, {
@@ -536,9 +536,7 @@
             ],
             throwOnError: false
           });
-        } catch (e) {
-          console.warn('KaTeX render warning:', e);
-        }
+        } catch (e) {}
       }
     }
 
@@ -644,7 +642,7 @@
 
       xhr.send(JSON.stringify({
         messages: conversationHistory,
-        model: img ? 'google/gemini-2.0-flash-lite-preview:free' : modelSelect.value
+        model: img ? 'thinkingmachines/inkling-small:free' : modelSelect.value
       }));
     }
   </script>
