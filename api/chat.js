@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     let payload = req.body;
     if (typeof payload === 'string') {
       try { payload = JSON.parse(payload); } catch (e) {
-        return res.status(400).json({ error: 'Invalid JSON body.' });
+        return res.status(400).json({ error: 'Invalid JSON payload.' });
       }
     }
 
@@ -46,7 +46,6 @@ module.exports = async (req, res) => {
       activePrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
     }
 
-    // Default to working Nemotron 3 Ultra Free
     const selectedModel = model || 'nvidia/nemotron-3-ultra-550b-a55b:free';
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -59,7 +58,7 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         model: selectedModel,
-        max_tokens: 500,
+        max_tokens: 1500, // Raised to 1500 to prevent cut-offs!
         temperature: 0.7,
         messages: [
           { role: 'system', content: activePrompt },
@@ -71,7 +70,7 @@ module.exports = async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('OpenRouter error details:', data);
+      console.error('OpenRouter error:', data);
       return res.status(response.status).json({
         error: data.error?.message || 'OpenRouter returned an error status.'
       });
@@ -87,7 +86,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error('OpenRouter backend failure:', err);
+    console.error('OpenRouter server failure:', err);
     return res.status(500).json({
       error: "oh noooooo! mah circuit decided to short out processing thet request. techsavvy check ur api key or try again in a second! :("
     });
