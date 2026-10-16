@@ -31,14 +31,22 @@ module.exports = async (req, res) => {
   try {
     let payload = req.body;
     if (typeof payload === 'string') {
-      try { payload = JSON.parse(payload); } catch (e) {
+      try { 
+        payload = JSON.parse(payload); 
+      } catch (e) {
         return res.status(400).json({ error: 'Invalid JSON payload.' });
       }
     }
 
-    const { messages, model, customInstructions } = payload || {};
+    let { messages, message, model, customInstructions } = payload || {};
+
+    // Support both { messages: [...] } from web and simple { message: "text" } from Android
+    if (!messages && message) {
+      messages = [{ role: 'user', content: message }];
+    }
+
     if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'Messages array is required.' });
+      return res.status(400).json({ error: 'Messages array or message text is required.' });
     }
 
     let activePrompt = DEFAULT_INSTRUCTIONS;
@@ -46,7 +54,13 @@ module.exports = async (req, res) => {
       activePrompt += `\n\n[USER CUSTOM INSTRUCTIONS]:\n${customInstructions.trim()}`;
     }
 
-    const selectedModel = model || 'nvidia/nemotron-3-ultra-550b-a55b:free';
+    // Default to an active, ultra-fast free tier model
+    let selectedModel = model && model.trim() ? model : 'meta-llama/llama-3.2-3b-instruct:free';
+    
+    // Catch outdated or dead Nemotron free slugs
+    if (selectedModel.includes('nemotron-3-ultra') || selectedModel.includes('inkling-small')) {
+      selectedModel = 'meta-llama/llama-3.2-3b-instruct:free';
+    }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -58,7 +72,7 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         model: selectedModel,
-        max_tokens: 1500, // Raised to 1500 to prevent cut-offs!
+        max_tokens: 1500,
         temperature: 0.7,
         messages: [
           { role: 'system', content: activePrompt },
